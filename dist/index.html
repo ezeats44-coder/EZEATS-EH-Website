@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f14d2b">
+  <meta name="description" content="Can't decide what to eat? EZEATS matches a meal to your mood, dietary preferences, time, and budget. A few choices. One delicious answer.">
+  <title>EZEATS — Find your next bite</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23f14d2b'/%3E%3Ctext x='32' y='45' font-size='46' font-family='Arial' font-weight='bold' fill='white' text-anchor='middle'%3Ee%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="EZEATS home"><span class="brand-icon" aria-hidden="true">e</span>EZ<span>EATS</span><span class="brand-period">.</span></a>
+    <span class="header-note">For the <span>“I don’t know, you pick”</span> people.</span>
+    <button class="text-button" id="how-button">How it works <span aria-hidden="true">↗</span></button>
+  </header>
+  <main>
+    <div class="page-intro"><div class="eyebrow"><span class="tiny-spark" aria-hidden="true">✳</span> LESS OVERTHINKING. MORE EATING.</div><h1>Let’s find your next <em>bite.</em></h1><p>A few little choices. One delicious answer.</p></div>
+    <div class="workspace">
+      <section class="picker" aria-label="Meal picker">
+        <ol class="steps" aria-label="Your progress"><li class="active" aria-current="step"><span>1</span> The mood</li><li><span>2</span> The details</li><li><span>3</span> The decision</li></ol>
+        <div id="flow">
+          <div class="step-heading"><span class="step-caption">FIRST, A GUT FEELING</span><h2>What are you in the mood for?</h2><p>Go with your first instinct. It’s usually hungry.</p></div>
+          <div class="moods" role="group" aria-label="Choose your food mood">
+            <button class="mood-card" data-mood="comfort" aria-pressed="false"><span class="mood-emoji" aria-hidden="true">🍝</span><span><strong>Something comforting</strong><small>Warm, cozy, hits the spot</small></span><i aria-hidden="true"></i></button>
+            <button class="mood-card" data-mood="fresh" aria-pressed="false"><span class="mood-emoji" aria-hidden="true">🥑</span><span><strong>Fresh & light</strong><small>A little feel-good fuel</small></span><i aria-hidden="true"></i></button>
+            <button class="mood-card" data-mood="bold" aria-pressed="false"><span class="mood-emoji" aria-hidden="true">🌶️</span><span><strong>Big, bold flavors</strong><small>Give my taste buds a trip</small></span><i aria-hidden="true"></i></button>
+            <button class="mood-card selected" data-mood="any" aria-pressed="true"><span class="mood-emoji" aria-hidden="true">✨</span><span><strong>I’m open to anything</strong><small>That’s why I’m here</small></span><i aria-hidden="true"></i></button>
+          </div>
+          <fieldset class="diet-field"><legend>Anything to keep in mind? <span>Optional</span></legend><div class="chips" id="diet-chips"><button class="chip selected" data-diet="any" type="button" aria-pressed="true">Everything’s on the table</button><button class="chip" data-diet="vegetarian" type="button" aria-pressed="false">Vegetarian</button><button class="chip" data-diet="vegan" type="button" aria-pressed="false">Vegan</button><button class="chip" data-diet="gluten-free" type="button" aria-pressed="false">Gluten-free</button><button class="chip" data-diet="dairy-free" type="button" aria-pressed="false">Dairy-free</button></div></fieldset>
+          <div class="flow-actions"><span class="time-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg> About 30 seconds</span><button class="primary" id="next-button">A little more about you <span aria-hidden="true">→</span></button></div>
+        </div>
+      </section>
+      <aside class="food-feature" aria-label="Food inspiration">
+        <div class="feature-top"><span class="feature-label">A LITTLE FOOD FOR THOUGHT</span><span class="feature-star" aria-hidden="true">✳</span></div>
+        <h2>Less <em>“what if.”</em><br>More <em>“that’s it.”</em></h2>
+        <div class="food-photo" id="food-photo"><img src="assets/grain-bowl.webp" width="1448" height="1086" alt="A colorful grain bowl with chickpeas, avocado, tomatoes, cucumber, and purple cabbage" fetchpriority="high"></div>
+        <div class="feature-bottom"><span class="feature-sticker">GOOD FOOD.<br>GOOD MOOD.</span><p>Your cravings have the clues.<br>We’ll connect the dots.</p></div>
+      </aside>
+    </div>
+    <footer class="page-footer"><span>Made for hungry minds that can’t make up their minds.</span><span>Follow your fork. <span aria-hidden="true">↗</span></span></footer>
+  </main>
+  <dialog id="how-dialog"><button class="close-dialog" aria-label="Close explanation">×</button><span class="eyebrow">A LITTLE METHOD TO THE MENU</span><h2>One good choice beats<br>a hundred maybes.</h2><p>Choose a mood, tell us your limits, and we’ll recommend a meal from our curated list.</p><ol class="how-list"><li><strong>Your preferences come first.</strong> Dietary choices, cooking time, and budget filter the list.</li><li><strong>Your cravings narrow it down.</strong> Mood, spice, and how adventurous you feel help rank the meals.</li><li><strong>You get one clear answer.</strong> If it doesn’t hit the spot, try the next best match.</li></ol><p class="small-note">Time and per-serving costs are home-cooking estimates. Dietary labels apply to the listed ingredients; check packaged ingredients for your needs.</p><button class="primary close-how">Sounds delicious <span aria-hidden="true">→</span></button></dialog>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
