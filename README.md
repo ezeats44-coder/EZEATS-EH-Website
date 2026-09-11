@@ -14,9 +14,11 @@ python3 -m http.server 4173 --directory dist
 
 Open http://localhost:4173. JavaScript modules require HTTP; do not open `index.html` directly as a file.
 
-## Deploy to Vercel
+## Deployment
 
-Import this GitHub repository into Vercel. The root `vercel.json` selects the static `dist` directory, skips installation/build commands, and enables automatic Git deployments. Set `main` as the production branch: pushes to `main` update production; pushes to other branches create preview deployments. No environment variables or paid services are required.
+Live website: https://ezeats.vercel.app
+
+This repository is connected to the existing `ezeats` Vercel project in the EZEats Eh team. The root `vercel.json` selects the static `dist` directory, skips installation/build commands, and enables automatic Git deployments. Pushes to `main` update production; pushes to other branches create preview deployments. No environment variables are required.
 
 ## How matching works
 
