@@ -36,8 +36,10 @@ export const meals = [
   meal('tuna-bowl', 'Lemon tuna & white bean bowl', '🥣', 'Mediterranean-inspired', ['fresh'], 10, 5, 0, 0, both, 'Tuna and creamy white beans with crunchy cucumber, parsley, and plenty of lemon.', ['Canned tuna', 'White beans', 'Cucumber', 'Parsley', 'Lemon', 'Olive oil']),
   meal('stuffed-peppers', 'Black bean stuffed peppers', '🫑', 'Tex-Mex-inspired', ['comfort', 'bold'], 55, 6, 1, 1, plant, 'Sweet roasted peppers filled with smoky black beans and rice. A little more time, a very good payoff.', ['Bell peppers', 'Black beans', 'Ready-cooked rice', 'Tomatoes', 'Corn', 'Mild chili powder'])
 ];
+// Pescatarian includes plant-based meals, eggs/dairy, fish and shellfish.
+for (const item of meals) if (item.diets.includes('vegetarian') || ['salmon-rice','shrimp-tacos','cajun-shrimp','tuna-bowl'].includes(item.id)) item.diets = [...item.diets, 'pescatarian'];
 export const defaults = { mood: 'any', diets: [], time: 30, budget: 10, heat: 1, adventure: 'any' };
-export const allowed = { mood: ['any', 'comfort', 'fresh', 'bold'], diets: ['vegetarian', 'vegan', 'gluten-free', 'dairy-free'], time: [15, 30, 60], budget: [5, 10, 20], heat: [0, 1, 2], adventure: ['any', 'familiar', 'adventurous'] };
+export const allowed = { mood: ['any', 'comfort', 'fresh', 'bold'], diets: ['vegetarian', 'vegan', 'pescatarian', 'gluten-free', 'dairy-free'], time: [15, 30, 60], budget: [5, 10, 20], heat: [0, 1, 2], adventure: ['any', 'familiar', 'adventurous'] };
 export function validatePreferences(input) {
   if (!input || typeof input !== 'object' || Array.isArray(input)) throw new Error('Preferences must be an object.');
   for (const key of Object.keys(input)) if (!Object.hasOwn(allowed, key)) throw new Error(`Unknown preference: ${key}`);

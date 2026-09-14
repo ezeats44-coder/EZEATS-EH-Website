@@ -13,11 +13,11 @@
   <header class="site-header">
     <a class="brand brand-logo" href="./" aria-label="EZEATS home"><img src="assets/ezeats-eh-logo.png" width="2172" height="724" alt="EZEATS EH" fetchpriority="high"></a>
     <span class="header-note">For the <span>“I don’t know, you pick”</span> people.</span>
-    <nav class="site-nav" aria-label="Main navigation"><a class="text-button" href="about/">About</a><button class="text-button" id="how-button">How it works <span aria-hidden="true">↗</span></button></nav>
+    <nav class="site-nav" aria-label="Main navigation"><a class="text-button" href="about/">About</a><button class="text-button" id="how-button">How it works <span aria-hidden="true">↗</span></button><a class="text-button account-link" href="/account/">Sign in</a><a class="text-button" href="/settings/">Settings</a></nav>
   </header>
   <main>
     <div class="page-intro"><div class="eyebrow"><span class="tiny-spark" aria-hidden="true">✳</span> LESS OVERTHINKING. MORE EATING.</div><h1>Let’s find your next <em>bite.</em></h1><p>A few little choices. One delicious answer.</p></div>
-    <div class="workspace">
+    <div class="personalization-note" id="personalization-note"><span>Here as a guest? Pick a meal below, or save your usuals with an account.</span><a href="/account/?create=1">Create account →</a></div><div class="workspace">
       <section class="picker" aria-label="Meal picker">
         <ol class="steps" aria-label="Your progress"><li class="active" aria-current="step"><span>1</span> The mood</li><li><span>2</span> The details</li><li><span>3</span> The decision</li></ol>
         <div id="flow">
@@ -28,7 +28,7 @@
             <button class="mood-card" data-mood="bold" aria-pressed="false"><span class="mood-emoji" aria-hidden="true">🌶️</span><span><strong>Big, bold flavors</strong><small>Give my taste buds a trip</small></span><i aria-hidden="true"></i></button>
             <button class="mood-card selected" data-mood="any" aria-pressed="true"><span class="mood-emoji" aria-hidden="true">✨</span><span><strong>I’m open to anything</strong><small>That’s why I’m here</small></span><i aria-hidden="true"></i></button>
           </div>
-          <fieldset class="diet-field"><legend>Anything to keep in mind? <span>Optional</span></legend><div class="chips" id="diet-chips"><button class="chip selected" data-diet="any" type="button" aria-pressed="true">Everything’s on the table</button><button class="chip" data-diet="vegetarian" type="button" aria-pressed="false">Vegetarian</button><button class="chip" data-diet="vegan" type="button" aria-pressed="false">Vegan</button><button class="chip" data-diet="gluten-free" type="button" aria-pressed="false">Gluten-free</button><button class="chip" data-diet="dairy-free" type="button" aria-pressed="false">Dairy-free</button></div></fieldset>
+          <fieldset class="diet-field"><legend>Anything to keep in mind? <span>Optional</span></legend><div class="chips" id="diet-chips"><button class="chip selected" data-diet="any" type="button" aria-pressed="true">Everything’s on the table</button><button class="chip" data-diet="pescatarian" type="button" aria-pressed="false">Pescatarian</button><button class="chip" data-diet="vegetarian" type="button" aria-pressed="false">Vegetarian</button><button class="chip" data-diet="vegan" type="button" aria-pressed="false">Vegan</button><button class="chip" data-diet="gluten-free" type="button" aria-pressed="false">Gluten-free</button><button class="chip" data-diet="dairy-free" type="button" aria-pressed="false">Dairy-free</button></div></fieldset>
           <div class="flow-actions"><span class="time-note"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg> About 30 seconds</span><button class="primary" id="next-button">A little more about you <span aria-hidden="true">→</span></button></div>
         </div>
       </section>

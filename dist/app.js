@@ -1,3 +1,7 @@
+import { accountReady, profileRequest } from './account-client.js';
+import { mealDefaults } from './profile-schema.js';
+import { applyProfile } from './profile-matching.js';
+let savedProfile = {}, pickerTouched = false;
 import { defaults, allowed, validatePreferences, rankMeals, reasonsFor } from './meals.js';
 const flow = document.querySelector('#flow');
 const moodTemplate = flow.innerHTML;
@@ -56,7 +60,7 @@ function showDetails() {
   focusHeading();
 }
 function recommend() {
-  state.ranked = rankMeals(state.prefs);
+  state.ranked = applyProfile(rankMeals(state.prefs), savedProfile);
   state.index = 0;
   state.accepted = false;
   showResult();
@@ -70,7 +74,7 @@ function showResult() {
   updateProgress(3);
   const item = state.ranked[state.index];
   if (!item) {
-    flow.innerHTML = `<div class="empty-state"><span aria-hidden="true">🥣</span><h2>No match this time.</h2><p>No meal in our list fits all these choices. Try allowing more cooking time or a higher budget. Your dietary preferences will stay selected.</p><button class="primary" data-action="details">Adjust my choices <span aria-hidden="true">→</span></button></div>`;
+    flow.innerHTML = `<div class="empty-state"><span aria-hidden="true">🥣</span><h2>No match this time.</h2><p>No meal in our list fits these choices and any saved ingredient exclusions. You can review your limits or your saved preferences in Settings. Additional allergy details pause suggestions because we cannot reliably screen them.</p><button class="primary" data-action="details">Adjust my choices <span aria-hidden="true">→</span></button></div>`;
     focusHeading();
     return;
   }
@@ -79,7 +83,7 @@ function showResult() {
   flow.innerHTML = `<div class="result-heading"><span class="result-label ${state.accepted ? 'accepted' : ''}">${state.accepted ? '✓ DECISION MADE' : '✳ YOUR NEXT BITE, SORTED'}</span><span class="result-emoji" aria-hidden="true">${item.emoji}</span><p class="cuisine">${item.cuisine}</p><h2>${item.name}</h2><p>${state.accepted ? 'Good choice. The deciding is done — time for the delicious part.' : item.description}</p></div>
     <div class="meal-meta"><span><strong>${item.minutes} min</strong> estimated prep + cook</span><span><strong>~$${item.cost}</strong> per serving</span><span><strong>${['Mild', 'A little kick', 'Spicy'][item.heat]}</strong> spice level</span></div>
     <div class="match-reasons"><h3>Why this one works</h3><ul>${reasons.map(reason => `<li><span aria-hidden="true">✓</span>${reason}</li>`).join('')}</ul></div>
-    <details class="ingredients" ${state.accepted ? 'open' : ''}><summary>What goes in it <span aria-hidden="true">+</span></summary><div class="ingredient-tags">${item.ingredients.map(ingredient => `<span>${ingredient}</span>`).join('')}</div><p class="small-note">Dietary labels apply to these ingredients. Check packaged products for your dietary needs.</p></details>
+    <details class="ingredients" ${state.accepted ? 'open' : ''}><summary>What goes in it <span aria-hidden="true">+</span></summary><div class="ingredient-tags">${item.ingredients.map(ingredient => `<span>${ingredient}</span>`).join('')}</div><p class="small-note">Dietary labels apply to these ingredients. Check packaged products for your dietary needs. Ingredient screening cannot verify brands, substitutions, or cross-contact; a match is not a guarantee that a meal is allergen-free.</p></details>
     <div class="result-actions">${state.accepted ? '<button class="primary" data-action="restart">Find another meal <span aria-hidden="true">→</span></button>' : `<button class="primary" data-action="accept">That’s the one <span aria-hidden="true">✓</span></button><button class="secondary" data-action="another" ${left === 0 ? 'disabled' : ''}>Another idea <span aria-hidden="true">↻</span></button>`}</div>
     <div class="result-foot"><button class="back-button" data-action="details">← Change my preferences</button><span>${state.accepted ? 'Enjoy every bite.' : left ? `${left} more ${left === 1 ? 'idea' : 'ideas'} fit your limits` : 'You’ve seen every match'}</span></div>${!state.accepted && !left ? '<p class="exhausted">Nothing clicked? Change your preferences or <button data-action="reshuffle">revisit these matches</button>.</p>' : ''}<p class="estimate-note">Home-cooking estimates. Actual prices and preparation times vary.</p>`;
   focusHeading();
@@ -92,6 +96,7 @@ function acceptMeal(id) {
   return currentResult();
 }
 flow.addEventListener('click', event => {
+  pickerTouched = true;
   const button = event.target.closest('button');
   if (!button || button.disabled) return;
   if (button.dataset.mood) { state.prefs.mood = button.dataset.mood; syncMood(); }
@@ -127,7 +132,7 @@ if (context?.registerTool) {
       name: 'recommend_meal', title: 'Find a meal', description: 'Set food preferences and display one matching meal. This does not accept the meal or place an order.',
       inputSchema: { type: 'object', properties: { mood: { type: 'string', enum: allowed.mood }, diets: { type: 'array', items: { type: 'string', enum: allowed.diets }, uniqueItems: true }, time: { type: 'number', enum: allowed.time }, budget: { type: 'number', enum: allowed.budget }, heat: { type: 'number', enum: allowed.heat }, adventure: { type: 'string', enum: allowed.adventure } }, additionalProperties: false },
       annotations: { readOnlyHint: false, untrustedContentHint: false },
-      execute(input) { const validated = validatePreferences(input); state.prefs = validated; return recommend(); }
+      execute(input) { const validated = validatePreferences(input); pickerTouched = true; state.prefs = validated; return recommend(); }
     },
     {
       name: 'accept_meal', title: 'Choose this meal', description: 'Mark the current recommendation as the user’s decision and display its ingredients. This does not place an order.',
@@ -142,3 +147,22 @@ if (context?.registerTool) {
   }
   window.addEventListener('pagehide', () => lifecycle.abort(), { once: true });
 }
+
+// Guests keep the original picker; account failure never blocks guest access.
+(async () => {
+ const note=document.querySelector('#personalization-note');
+ try {
+  const clerk=await accountReady();
+  if(!clerk.user)return;
+  document.querySelector('.account-link').textContent='Account';
+  document.querySelector('.account-link').href='/settings/';
+  const data=await profileRequest();savedProfile=data.profile;
+  note.replaceChildren();
+  const label=document.createElement('span');
+  label.textContent=data.completed?'Your saved food preferences are ready. Changes below apply to this visit.':'Welcome! Set up your food preferences, or keep choosing a meal below.';
+  if(savedProfile.otherAllergies)label.textContent='Your profile includes additional allergy details we cannot screen. Meal suggestions are paused; review your Settings.';
+  const link=document.createElement('a');link.href='/settings/';link.textContent=data.completed?'Edit preferences →':'Personalize my experience →';note.append(label,link);
+  if(!pickerTouched){state.prefs={...state.prefs,...mealDefaults(savedProfile)};syncMood();}
+  else if(state.step===3){state.ranked=applyProfile(state.ranked,savedProfile);state.index=0;state.accepted=false;showResult();}
+ }catch { note.querySelector('span').textContent='Saved preferences could not be loaded. This picker is using guest choices; check your dietary needs before choosing.'; }
+})();
