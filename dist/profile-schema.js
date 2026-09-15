@@ -27,14 +27,20 @@ export const sections = [
  {title:'A little about you',intro:'Optional personal details. These do not change meal rankings or limit access. Leave anything blank or choose “Prefer not to say.”',fields:[
   {key:'name',label:'What should we call you?',text:true,max:60},
   {key:'age',label:'Age range',options:['14–17','18–24','25–34','35–44','45–54','55–64','65+','Prefer not to say'],help:'EZEATS accounts are for people age 14 and older. Sharing your age range here is optional.'},
-  {key:'gender',label:'Gender',options:['Woman','Man','Nonbinary','Self-described','Prefer not to say']},
-  {key:'genderDescription',label:'Describe your gender, if you like',text:true,max:60},
+  {key:'gender',label:'Gender',options:['Male','Female','Prefer not to say']},
   {key:'relationship',label:'Relationship status',options:['Single','Dating / partnered','Married','Another description','Prefer not to say']},
   {key:'student',label:'Are you currently a student?',options:['Yes','No','Prefer not to say']},
   {key:'pregnancy',label:'Are you currently pregnant?',options:['Yes','No','Not applicable','Prefer not to say'],help:'Optional sensitive information. This is not used to assess food safety or provide pregnancy-specific recommendations.'}
  ]}
 ];
 export const fields = sections.flatMap(s => s.fields);
+export function normalizeStoredProfile(value = {}) {
+ const profile = Object.fromEntries(Object.entries(value).filter(([key,v]) => fields.some(f=>f.key===key) && v!==null));
+ if(profile.gender==='Man') profile.gender='Male';
+ if(profile.gender==='Woman') profile.gender='Female';
+ if(profile.gender && !fields.find(f=>f.key==='gender').options.includes(profile.gender)) delete profile.gender;
+ return profile;
+}
 export function validateProfile(value) {
  if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Invalid profile.');
  const result = {};

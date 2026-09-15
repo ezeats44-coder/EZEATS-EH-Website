@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {validateProfile,mealDefaults,fields} from '../dist/profile-schema.js';
+import {validateProfile,mealDefaults,fields,normalizeStoredProfile} from '../dist/profile-schema.js';
 import {meals,rankMeals} from '../dist/meals.js';
 import {applyProfile} from '../dist/profile-matching.js';
 import handler,{createProfileHandler} from '../api/profile.js';
@@ -13,7 +13,7 @@ test('Every questionnaire answer can be saved and cleared',()=>{
  assert.deepEqual(validateProfile(p),p);assert.deepEqual(validateProfile({}),{});
 });
 test('Diet, cooking budget and spice are applied without demographic inference',()=>{
- assert.deepEqual(mealDefaults({diet:'Pescatarian',spice:'Not spicy',time:'15 minutes',budget:'Up to $5',pregnancy:'Yes',gender:'Woman'}),{heat:0,time:15,budget:5,diets:['pescatarian']});
+ assert.deepEqual(mealDefaults({diet:'Pescatarian',spice:'Not spicy',time:'15 minutes',budget:'Up to $5',pregnancy:'Yes',gender:'Female'}),{heat:0,time:15,budget:5,diets:['pescatarian']});
  const m=rankMeals({diets:['pescatarian'],time:60,budget:20,heat:2});
  assert.ok(m.some(m=>m.id==='salmon-rice'));assert.ok(!m.some(m=>m.id==='chicken-rice'||m.id==='beef-burger'));
 });
@@ -48,4 +48,10 @@ test('Cross-origin writes and unsupported methods fail closed',async()=>{
  const r={setHeader(){},status(n){this.code=n;return this;},json(){return this;}};
  await handler({method:'PUT',headers:{origin:'https://evil.example'}},r);assert.equal(r.code,403);
  await handler({method:'POST',headers:{}},r);assert.equal(r.code,405);
+});
+
+test('Existing profiles remain usable after removing gender write-ins',()=>{
+ assert.deepEqual(validateProfile(normalizeStoredProfile({gender:'Man',genderDescription:'old text',diet:'Vegan',name:null})),{gender:'Male',diet:'Vegan'});
+ assert.deepEqual(validateProfile(normalizeStoredProfile({gender:'Self-described',genderDescription:'old text',spice:'Mild'})),{spice:'Mild'});
+ assert.throws(()=>validateProfile({genderDescription:'new text'}));
 });

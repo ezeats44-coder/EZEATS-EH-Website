@@ -8,7 +8,7 @@ function field(f){
  const v=profile[f.key],id=`field-${f.key}`;
  if(f.text)return `<div class="profile-field"><label for="${id}">${f.label}</label>${f.help?`<p id="${id}-help" class="field-help">${f.help}</p>`:''}<input id="${id}" name="${f.key}" maxlength="${f.max}" value="${esc(v||'')}" ${f.help?`aria-describedby="${id}-help"`:''} autocomplete="off"></div>`;
  if(f.multiple)return `<fieldset class="profile-field"><legend>${f.label}</legend>${f.help?`<p class="field-help">${f.help}</p>`:''}<div class="profile-options">${f.options.map((o,i)=>`<label><input type="checkbox" name="${f.key}" value="${esc(o)}" ${(v||[]).includes(o)?'checked':''}><span>${o}</span></label>`).join('')}</div></fieldset>`;
- return `<div class="profile-field"><label for="${id}">${f.label}</label>${f.help?`<p id="${id}-help" class="field-help">${f.help}</p>`:''}<select id="${id}" name="${f.key}" ${f.help?`aria-describedby="${id}-help"`:''}><option value="">Skip / no answer</option>${f.options.map(o=>`<option ${v===o?'selected':''} value="${esc(o)}">${o}</option>`).join('')}</select></div>`;
+ return `<div class="profile-field"><label for="${id}">${f.label}</label>${f.help?`<p id="${id}-help" class="field-help">${f.help}</p>`:''}<select id="${id}" name="${f.key}" ${f.help?`aria-describedby="${id}-help"`:''}>${f.key==='gender'?'':'<option value="">Skip / no answer</option>'}${f.options.map(o=>`<option ${(v===o||(f.key==='gender'&&!v&&o==='Prefer not to say'))?'selected':''} value="${esc(o)}">${o}</option>`).join('')}</select></div>`;
 }
 function render(){
  const visible=onboarding?[sections[step]]:sections;

@@ -1,5 +1,5 @@
 import {createClerkClient} from '@clerk/backend';
-import {validateProfile,fields} from '../dist/profile-schema.js';
+import {validateProfile,fields,normalizeStoredProfile} from '../dist/profile-schema.js';
 export function createProfileHandler(makeClient=createClerkClient) {return async function handler(req,res) {
  res.setHeader('Cache-Control','private, no-store');
  if(!['GET','PUT','PATCH','DELETE'].includes(req.method)){res.setHeader('Allow','GET, PUT, PATCH, DELETE');return res.status(405).json({error:'Method not allowed.'});}
@@ -21,7 +21,7 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
   const user=await clerk.users.getUser(userId);
   if(req.method!=='DELETE'&&user.privateMetadata.ezeatsAgeConfirmation?.minimumAge!==14)return res.status(403).json({code:'AGE_REQUIRED',error:'Confirm that you are 14 or older before using account preferences.'});
   if(req.method==='GET') {
-   return res.status(200).json({profile:user.privateMetadata.ezeatsProfile||{},completed:Boolean(user.privateMetadata.ezeatsOnboarded)});
+   return res.status(200).json({profile:normalizeStoredProfile(user.privateMetadata.ezeatsProfile||{}),completed:Boolean(user.privateMetadata.ezeatsOnboarded)});
   }
   if(req.method==='DELETE') {
    await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsProfile:null,ezeatsOnboarded:null}});
@@ -34,7 +34,7 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
    if(!body||Object.keys(body).some(k=>!['profile','completed'].includes(k))||typeof body.completed!=='boolean')throw new Error('Invalid profile request.');
    body.profile=validateProfile(body.profile);
   } catch {return res.status(400).json({error:'Please check your answers and try again.'});}
-  await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsProfile:{...Object.fromEntries(fields.map(f=>[f.key,null])),...body.profile},ezeatsOnboarded:body.completed}});
+  await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsProfile:{genderDescription:null,...Object.fromEntries(fields.map(f=>[f.key,null])),...body.profile},ezeatsOnboarded:body.completed}});
   return res.status(200).json(body);
  } catch {return res.status(503).json({error:'Your preferences could not be accessed. Please try again.'});}
 };}
