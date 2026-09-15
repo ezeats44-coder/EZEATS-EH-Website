@@ -1,8 +1,9 @@
 import {createClerkClient} from '@clerk/backend';
 import {validateProfile,fields,normalizeStoredProfile} from '../dist/profile-schema.js';
+import {recordChoice} from '../dist/meal-history.js';
 export function createProfileHandler(makeClient=createClerkClient) {return async function handler(req,res) {
  res.setHeader('Cache-Control','private, no-store');
- if(!['GET','PUT','PATCH','DELETE'].includes(req.method)){res.setHeader('Allow','GET, PUT, PATCH, DELETE');return res.status(405).json({error:'Method not allowed.'});}
+ if(!['GET','PUT','POST','PATCH','DELETE'].includes(req.method)){res.setHeader('Allow','GET, PUT, POST, PATCH, DELETE');return res.status(405).json({error:'Method not allowed.'});}
  const origins=['https://ezeats.vercel.app','https://ezeats-eh.com','https://www.ezeats-eh.com',...(process.env.VERCEL_URL?[`https://${process.env.VERCEL_URL}`]:[]),...(process.env.VERCEL_ENV!=='production'?['http://localhost:4175']:[])];
  if(req.headers.origin && !origins.includes(req.headers.origin)) return res.status(403).json({error:'Origin not allowed.'});
  if(!req.headers.authorization?.startsWith('Bearer '))return res.status(401).json({error:'Sign in to access your preferences.'});
@@ -22,13 +23,23 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
   const user=await clerk.users.getUser(userId);
   if(req.method!=='DELETE'&&![13,14].includes(user.privateMetadata.ezeatsAgeConfirmation?.minimumAge))return res.status(403).json({code:'AGE_REQUIRED',error:'Confirm that you are 13 or older before using account preferences.'});
   if(req.method==='GET') {
-   return res.status(200).json({profile:normalizeStoredProfile(user.privateMetadata.ezeatsProfile||{}),completed:Boolean(user.privateMetadata.ezeatsOnboarded)});
+   return res.status(200).json({profile:normalizeStoredProfile(user.privateMetadata.ezeatsProfile||{}),history:user.privateMetadata.ezeatsMealHistory||[],completed:Boolean(user.privateMetadata.ezeatsOnboarded)});
   }
   if(req.method==='DELETE') {
+   if(req.query?.history==='1'){
+    await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsMealHistory:null}});
+    return res.status(200).json({history:[]});
+   }
    await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsProfile:null,ezeatsOnboarded:null}});
    return res.status(200).json({profile:{},completed:false});
   }
   if(Number(req.headers['content-length']||0)>12000)return res.status(413).json({error:'Profile is too large.'});
+  if(req.method==='POST'){
+   let history;
+   try{history=recordChoice(user.privateMetadata.ezeatsMealHistory,typeof req.body==='string'?JSON.parse(req.body):req.body);}catch{return res.status(400).json({error:'Please choose a valid meal.'});}
+   await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsMealHistory:history}});
+   return res.status(200).json({history});
+  }
   let body=req.body;
   try {
    if(typeof body==='string')body=JSON.parse(body);

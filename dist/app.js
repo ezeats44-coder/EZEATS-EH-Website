@@ -1,6 +1,8 @@
 import { accountReady, profileRequest } from './account-client.js';
 import { mealDefaults } from './profile-schema.js';
 import { applyProfile } from './profile-matching.js';
+import {rankWithHistory} from './meal-history.js';
+let personalMode=false,mealHistory=[],choiceId='',savingChoice=false;
 let savedProfile = {}, pickerTouched = false;
 import { defaults, allowed, validatePreferences, rankMeals, reasonsFor } from './meals.js';
 const flow = document.querySelector('#flow');
@@ -59,8 +61,15 @@ function showDetails() {
     <div class="flow-actions"><button class="back-button" data-action="mood">← Back</button><button class="primary" data-action="recommend">Find my meal <span aria-hidden="true">✳</span></button></div><p class="estimate-note">Time and cost are estimates for the ingredients shown.</p>`;
   focusHeading();
 }
+function showPersonalPicker() {
+ document.querySelector('.steps').hidden=true;
+ state.step=1;
+ flow.innerHTML=`<div class="one-tap"><span class="step-caption">YOUR TASTE. ONE TAP.</span><h2>Leave the choosing to us.</h2><p>Your usuals, a little variety, and one delicious answer.</p><div class="bite-orbit"><span class="orbit-snack snack-one" aria-hidden="true">🍋</span><span class="orbit-snack snack-two" aria-hidden="true">🍝</span><span class="orbit-snack snack-three" aria-hidden="true">🌶️</span><button class="bite-button" data-action="personal"><span class="bite-spark" aria-hidden="true">✳</span><strong>Pick my bite</strong><span>Less thinking. More eating.</span></button></div><p class="one-tap-note">${mealHistory.length?'Inspired by your preferences and recent picks.':'Your saved food preferences lead the way.'}</p><a class="text-button" href="/settings/">Fine-tune my preferences →</a><p class="small-note">Choosing “That’s the one” saves this meal to your recent picks. Clear them here any time.</p><button class="back-button" data-action="clear-history" ${mealHistory.length?'':'hidden'}>Clear recent picks</button></div>`;
+}
 function recommend() {
   state.ranked = applyProfile(rankMeals(state.prefs), savedProfile);
+  if(personalMode)state.ranked=rankWithHistory(state.ranked,mealHistory);
+  choiceId=crypto.randomUUID();
   state.index = 0;
   state.accepted = false;
   showResult();
@@ -79,6 +88,7 @@ function showResult() {
     return;
   }
   const reasons = reasonsFor(item, state.prefs);
+  if(personalMode&&item.historyReason)reasons.push(item.historyReason);
   const left = state.ranked.length - state.index - 1;
   flow.innerHTML = `<div class="result-heading"><span class="result-label ${state.accepted ? 'accepted' : ''}">${state.accepted ? '✓ DECISION MADE' : '✳ YOUR NEXT BITE, SORTED'}</span><span class="result-emoji" aria-hidden="true">${item.emoji}</span><p class="cuisine">${item.cuisine}</p><h2>${item.name}</h2><p>${state.accepted ? 'Good choice. The deciding is done — time for the delicious part.' : item.description}</p></div>
     <div class="meal-meta"><span><strong>${item.minutes} min</strong> estimated prep + cook</span><span><strong>~$${item.cost}</strong> per serving</span><span><strong>${['Mild', 'A little kick', 'Spicy'][item.heat]}</strong> spice level</span></div>
@@ -88,9 +98,17 @@ function showResult() {
     <div class="result-foot"><button class="back-button" data-action="details">← Change my preferences</button><span>${state.accepted ? 'Enjoy every bite.' : left ? `${left} more ${left === 1 ? 'idea' : 'ideas'} fit your limits` : 'You’ve seen every match'}</span></div>${!state.accepted && !left ? '<p class="exhausted">Nothing clicked? Change your preferences or <button data-action="reshuffle">revisit these matches</button>.</p>' : ''}<p class="estimate-note">Home-cooking estimates. Actual prices and preparation times vary.</p>`;
   focusHeading();
 }
-function acceptMeal(id) {
+async function acceptMeal(id) {
   const item = state.ranked[state.index];
   if (!item || item.id !== id || state.step !== 3) throw new Error('This meal is not the current recommendation.');
+  if(savingChoice||state.accepted)return currentResult();
+  if(personalMode){
+   savingChoice=true;
+   const button=flow.querySelector('[data-action="accept"]');if(button){button.disabled=true;button.textContent='Saving your pick…';}
+   try{const data=await profileRequest('POST',{mealId:id,choiceId});mealHistory=data.history;}
+   catch(error){if(button){button.disabled=false;button.textContent='Retry saving this pick';}let message=flow.querySelector('.choice-error');if(!message){message=document.createElement('p');message.className='choice-error';message.setAttribute('role','status');flow.append(message);}message.textContent='Your pick could not be saved. Please retry.';return currentResult();}
+   finally{savingChoice=false;}
+  }
   state.accepted = true;
   showResult();
   return currentResult();
@@ -116,12 +134,17 @@ flow.addEventListener('click', event => {
     });
   }
   const action = button.dataset.action || (button.id === 'next-button' ? 'details' : '');
+  if(savingChoice)return;
+  if(action==='personal'){state.prefs={...defaults,...mealDefaults(savedProfile)};recommend();}
+  if(action==='clear-history'){
+   button.disabled=true;profileRequest('DELETE',undefined,'?history=1').then(()=>{mealHistory=[];showPersonalPicker();}).catch(()=>{button.disabled=false;button.textContent='Could not clear picks. Retry';});
+  }
   if (action === 'mood') showMood();
   if (action === 'details') showDetails();
   if (action === 'recommend' || action === 'reshuffle') recommend();
-  if (action === 'another' && state.index + 1 < state.ranked.length) { state.index++; state.accepted = false; showResult(); }
+  if (action === 'another' && state.index + 1 < state.ranked.length) { state.index++; choiceId=crypto.randomUUID();state.accepted = false; showResult(); }
   if (action === 'accept') acceptMeal(state.ranked[state.index].id);
-  if (action === 'restart') { state.ranked = []; state.accepted = false; state.index = 0; showMood(); }
+  if (action === 'restart') { state.ranked = []; state.accepted = false; state.index = 0; if(personalMode)showPersonalPicker();else showMood(); }
 });
 // Feature-detect the proposed WebMCP API; normal browsers use the interface above.
 const context = document.modelContext;
@@ -156,13 +179,13 @@ if (context?.registerTool) {
   if(!clerk.user)return;
   document.querySelector('.account-link').textContent='Account';
   document.querySelector('.account-link').href='/settings/';
-  const data=await profileRequest();savedProfile=data.profile;
+  const data=await profileRequest();savedProfile=data.profile;mealHistory=data.history||[];personalMode=true;
   note.replaceChildren();
   const label=document.createElement('span');
-  label.textContent=data.completed?'Your saved food preferences are ready. Changes below apply to this visit.':'Welcome! Set up your food preferences, or keep choosing a meal below.';
+  label.textContent=data.completed?'Your preferences are in. Let’s pick something good.':'One tap to start. Add your usuals in Settings for a closer match.';
   if(savedProfile.otherAllergies)label.textContent='Your profile includes additional allergy details we cannot screen. Meal suggestions are paused; review your Settings.';
   const link=document.createElement('a');link.href='/settings/';link.textContent=data.completed?'Edit preferences →':'Personalize my experience →';note.append(label,link);
-  if(!pickerTouched){state.prefs={...state.prefs,...mealDefaults(savedProfile)};syncMood();}
+  if(!pickerTouched){state.prefs={...state.prefs,...mealDefaults(savedProfile)};showPersonalPicker();document.querySelector('.page-intro>p').textContent='One little tap. One delicious answer.';}
   else if(state.step===3){state.ranked=applyProfile(state.ranked,savedProfile);state.index=0;state.accepted=false;showResult();}
- }catch { note.querySelector('span').textContent='Saved preferences could not be loaded. This picker is using guest choices; check your dietary needs before choosing.'; }
+ }catch(error) { const label=note.querySelector('span');if(label)label.textContent=error.code==='AGE_REQUIRED'?'Finish your one-time age confirmation in Settings to unlock your personal picker.':'Saved preferences could not be loaded. This picker is using guest choices; check your dietary needs before choosing.'; }
 })();

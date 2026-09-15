@@ -16,6 +16,8 @@ Allergy and pregnancy answers can reveal sensitive health-related information. S
 
 **Messages to us.** If you contact us, we receive the information you include in your message and your contact details.
 
+**Recent meal picks.** When signed in, selecting “That’s the one” saves the meal identifier, a choice identifier, and the time with your account. We keep up to 20 recent confirmed picks to favor cuisines you have chosen and reduce recent repeats. These are choices within EZEATS, not verified purchases or meals eaten. Choices made before this feature launched are not reconstructed. You can remove this history using **Clear recent picks** on the personal meal picker. Guest choices are not saved to this history.
+
 ## Guest use and technical information
 
 You can use the meal picker without an account. Guest meal choices are held in the page's memory and are not saved as an account profile. Closing or reloading the page resets those choices.
@@ -40,7 +42,7 @@ We may disclose information when required by applicable law or when necessary to
 
 ## Storage, retention, and your choices
 
-Profile answers are stored as account-linked private metadata in Clerk. The website's profile service requires an authenticated session before reading, changing, or deleting those answers. Connections use HTTPS. No system can guarantee absolute security.
+Profile answers and up to 20 recent meal picks are stored as account-linked private metadata in Clerk. The website's profile service requires an authenticated session before reading, changing, or deleting those answers or picks. History-based ranking uses picks from the last 90 days; stored picks remain until displaced by newer picks, cleared, or the account is deleted. Clearing recent picks resets history-based personalization without changing your stated preferences. Deleting preferences alone does not clear recent picks. Connections use HTTPS. No system can guarantee absolute security.
 
 Saved preferences remain associated with your account until you change or delete them or delete your account. In Settings, you can clear individual answers, save updated preferences, or select **Delete saved preferences**. Deleting preferences does not delete your sign-in account. **Manage account** provides account controls, including account deletion. Removing the connection in Apple or Google alone does not necessarily delete your EZEATS account or saved profile.
 

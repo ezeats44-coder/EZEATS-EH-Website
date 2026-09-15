@@ -20,9 +20,9 @@ export function accountReady() {
   return window.Clerk;
  })();
 }
-export async function profileRequest(method='GET',body) {
+export async function profileRequest(method='GET',body,query='') {
  const clerk=await accountReady();const token=await clerk.session?.getToken();
  if(!token)throw new Error('Please sign in to save your preferences.');
- const response=await fetch('/api/profile',{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
+ const response=await fetch('/api/profile'+query,{method,headers:{Authorization:`Bearer ${token}`,...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{}),cache:'no-store'});
  const data=await response.json();if(!response.ok){const error=new Error(data.error||'Please try again.');error.code=data.code;throw error;}return data;
 }

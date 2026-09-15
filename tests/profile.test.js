@@ -25,7 +25,7 @@ test('Allergy screening excludes known ingredients and pauses on additional alle
  assert.equal(new Set(meals.map(m=>m.id)).size,meals.length);
 });
 test('Unauthenticated profile requests cannot read, change, or delete data',async()=>{
- for(const method of ['GET','PUT','PATCH','DELETE']){
+ for(const method of ['GET','PUT','POST','PATCH','DELETE']){
  const response={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};
  await handler({method,headers:{},body:{profile:{name:'Intruder'},completed:true}},response);assert.equal(response.code,401);
  }
@@ -58,7 +58,7 @@ test('Age confirmation is required server-side and cannot be asserted through pr
 test('Cross-origin writes and unsupported methods fail closed',async()=>{
  const r={setHeader(){},status(n){this.code=n;return this;},json(){return this;}};
  await handler({method:'PUT',headers:{origin:'https://evil.example'}},r);assert.equal(r.code,403);
- await handler({method:'POST',headers:{}},r);assert.equal(r.code,405);
+ await handler({method:'OPTIONS',headers:{}},r);assert.equal(r.code,405);
 });
 
 test('Existing profiles remain usable after removing gender write-ins',()=>{
