@@ -10,7 +10,7 @@ EZEATS EH is operated by EZ-EATS EH LLC. This policy explains how we handle info
 
 Google sign-in requests basic identity information: your account identifier, email address, and basic profile. EZEATS EH uses this information to identify you, manage your account, and let you return to your saved preferences. It does not request access to your Gmail messages, contacts, calendar, or Google Drive files.
 
-**Optional profile answers.** You can save food preferences such as diet, spice tolerance, favorite cuisines, ingredient dislikes, allergies, cooking time, budget, and eating habits. You can also choose to provide personal information such as your name, age range, gender, relationship status, student status, and pregnancy status. These questions are optional, and you can skip setup or leave individual answers blank.
+**Optional profile answers.** You can save food preferences such as diet, spice tolerance, favorite cuisines, favorite food types, ingredient dislikes, favorite restaurant names, allergies, cooking time, budget, and eating habits. Favorite restaurant names are saved for future restaurant recommendations; nearby restaurant search is not yet available. You can also choose to provide personal information such as your name, age range, gender, relationship status, student status, and pregnancy status. These questions are optional, and you can skip setup or leave individual answers blank.
 
 Allergy and pregnancy answers can reveal sensitive health-related information. Saving your profile saves any such answers you choose to enter. Avoid entering information you do not want stored with your account. These answers are not posted publicly or shared with other users.
 

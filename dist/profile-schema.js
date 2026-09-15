@@ -5,10 +5,13 @@ export const sections = [
   {key:'taste',label:'Sweet or savory?',options:['Sweet','Savory / salty','Both']},
   {key:'diet',label:'Do you follow a specific diet?',options:['No specific diet','Pescatarian','Vegetarian','Vegan']},
   {key:'restrictions',label:'Other dietary preferences',multiple:true,options:['Gluten-free','Dairy-free']},
-  {key:'avoid',label:'Any foods you prefer to avoid?',text:true,max:200,help:'Dislikes, separated by commas (for example: mushrooms, olives). Put allergies in the next question.'},
+  {key:'favoritePlaces',label:'Any favorite spots?',multiple:true,bubbles:true,options:["McDonald’s",'Chick-fil-A','Chipotle','Taco Bell','Wendy’s','Subway','Panera Bread','Panda Express','Five Guys','In-N-Out','Shake Shack','Culver’s','Whataburger','Popeyes','KFC','Starbucks','Dunkin’','Domino’s','Pizza Hut','Olive Garden','Chili’s','Applebee’s','Texas Roadhouse','IHOP','Denny’s','Sweetgreen','CAVA','Local favorites'],help:'A few familiar names to get started. Saved for future restaurant recommendations; nearby search is not available yet.'},
+  {key:'foodLikes',label:'What always sounds good?',multiple:true,bubbles:true,options:['Pasta','Pizza','Tacos','Burgers','Rice bowls','Noodles','Salads','Soups & stews','Sandwiches & wraps','Seafood','Chicken','Beef','Tofu','Beans & lentils','Eggs','Potatoes'],help:'Tap your favorites. Pick as many or as few as you like.'},
+  {key:'foodDislikes',label:'What would you rather skip?',multiple:true,bubbles:true,options:['Mushrooms','Avocado','Olives','Onions','Tomatoes','Cilantro','Eggplant','Broccoli','Peppers','Cheese','Eggs','Fish','Shellfish','Tofu','Beans','Lentils'],help:'These ingredients will be excluded when listed in a meal. For allergies, use the separate allergy question.'},
+  {key:'avoid',label:'Anything else you would rather skip?',text:true,max:200,help:'Other dislikes, separated by commas (for example: celery, cabbage). Add allergies in the next step.'},
   {key:'allergies',label:'Do you have any food allergies?',multiple:true,options:['Milk','Eggs','Fish','Shellfish','Peanuts','Tree nuts','Wheat','Soy','Sesame'],help:'Select any that apply. We screen listed ingredients, but cannot verify brands or cross-contact. Always check ingredients and preparation.'},
   {key:'otherAllergies',label:'Other allergies or allergy details',text:true,max:300,help:'If you enter an allergy we cannot screen, we will pause meal suggestions instead of guessing.'},
-  {key:'cuisines',label:'Which cuisines do you enjoy?',multiple:true,options:['Italian','Mexican','Mediterranean','Indian','Japanese','Thai','Korean','American']},
+  {key:'cuisines',label:'Where do your cravings take you?',multiple:true,bubbles:true,options:['Italian','Mexican','Mediterranean','Indian','Japanese','Thai','Korean','American','Chinese','Vietnamese','Greek','Middle Eastern','Caribbean','French','Spanish','Ethiopian','Brazilian','Filipino','Cajun','Turkish'],help:'Tap the cuisines you love. Some are saved for future menu additions as our meal collection grows.'},
   {key:'adventure',label:'Do you like trying something new?',options:['Keep it familiar','Try something new','Either works']}
  ]},
  {title:'Make it fit your day',intro:'These are your usual preferences. You can change your meal choices any time.',fields:[
@@ -34,6 +37,14 @@ export const sections = [
  ]}
 ];
 export const fields = sections.flatMap(s => s.fields);
+const setupGroup=(title,intro,keys)=>({title,intro,fields:keys.map(key=>fields.find(f=>f.key===key))});
+const tasteKeys=['cuisines','foodLikes','foodDislikes','avoid','favoritePlaces'];
+const needsKeys=['diet','restrictions','allergies','otherAllergies','spice','taste','time','budget','adventure'];
+export const setupSections=[
+ setupGroup('Follow your cravings','A few taps are all it takes. Everything is optional, and you can change your picks later.',tasteKeys),
+ setupGroup('Make it work for you','Your dietary needs and everyday limits come first.',needsKeys),
+ {title:'The little extras',intro:'You are ready to go. Add any extra details you want, or finish now.',fields:fields.filter(f=>![...tasteKeys,...needsKeys].includes(f.key)),extras:true}
+];
 export function normalizeStoredProfile(value = {}) {
  const profile = Object.fromEntries(Object.entries(value).filter(([key,v]) => fields.some(f=>f.key===key) && v!==null));
  if(profile.age==='14–17') profile.age='13–17';
