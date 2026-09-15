@@ -48,9 +48,9 @@ You can also contact ezeats44@gmail.com to request access, correction, or deleti
 
 ## Age requirement
 
-EZEATS accounts are available to people age 14 and older. Our website asks you to confirm that you meet this requirement before opening the sign-in or registration form. Before you can access saved preferences, we also save your age-eligibility confirmation and its date with your account. This is a self-declaration, not identity or age verification; we do not collect a date of birth for this check. The optional age-range question in Settings starts at 14–17 and is separate from eligibility confirmation.
+EZEATS accounts are available to people age 13 and older. After your first sign-in, we ask you to confirm this once before beginning personalized setup or accessing saved preferences. We save your age-eligibility confirmation and its date with your account so you do not need to repeat it when signing in again or using another device. A previously saved confirmation of being 14 or older also meets this requirement. This is a self-declaration, not identity or age verification; we do not collect a date of birth for this check. The optional age-range question in Settings starts at 13–17 and is separate from eligibility confirmation.
 
-If you believe someone under 14 has created an account, contact ezeats44@gmail.com so we can investigate and address the account and associated information. The guest meal picker does not require an account.
+If you believe someone under 13 has created an account, contact ezeats44@gmail.com so we can investigate and address the account and associated information. The guest meal picker does not require an account.
 
 ## Changes to this policy
 
@@ -61,7 +61,7 @@ We will update this policy when our information practices change and show the ef
 ## Owner review notes — remove before publication
 
 - Confirm ezeats44@gmail.com is the ongoing privacy contact and that EZ-EATS EH LLC is the correct operator.
-- The owner selected a minimum account age of 14. The website has a self-declaration gate; this is not verified age assurance. Before launch, also restrict or configure Clerk's separate hosted signup entry points so they do not bypass the website's eligibility step.
+- The owner selected a minimum account age of 13. The website has a self-declaration gate; this is not verified age assurance. Before launch, also restrict or configure Clerk's separate hosted signup entry points so they do not bypass the website's eligibility step.
 - Confirm provider log and backup retention and any business records kept outside this website. No fixed retention period has been invented here.
 - Confirm whether to retain optional demographic and pregnancy questions that currently do not affect recommendations. The draft discloses their current behavior.
 - Confirm any advertising, analytics, data sharing, or other business practices outside the inspected website code before publishing. The draft describes the current implementation, not unverified company-wide practices.

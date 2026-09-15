@@ -14,12 +14,13 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
   if(!userId)return res.status(401).json({error:'Your session expired. Please sign in again.'});
   if(req.method==='PATCH'){
    let body=req.body;try{if(typeof body==='string')body=JSON.parse(body);}catch{return res.status(400).json({error:'Please confirm your age eligibility.'});}
-   if(!body||body.ageConfirmed!==true||Object.keys(body).length!==1)return res.status(400).json({error:'Please confirm that you are 14 or older.'});
-   await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsAgeConfirmation:{minimumAge:14,confirmedAt:new Date().toISOString()}}});
+   if(!body||body.ageConfirmed!==true||Object.keys(body).length!==1)return res.status(400).json({error:'Please confirm that you are 13 or older.'});
+   const existing=await clerk.users.getUser(userId);
+   if(![13,14].includes(existing.privateMetadata.ezeatsAgeConfirmation?.minimumAge))await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsAgeConfirmation:{minimumAge:13,confirmedAt:new Date().toISOString()}}});
    return res.status(200).json({confirmed:true});
   }
   const user=await clerk.users.getUser(userId);
-  if(req.method!=='DELETE'&&user.privateMetadata.ezeatsAgeConfirmation?.minimumAge!==14)return res.status(403).json({code:'AGE_REQUIRED',error:'Confirm that you are 14 or older before using account preferences.'});
+  if(req.method!=='DELETE'&&![13,14].includes(user.privateMetadata.ezeatsAgeConfirmation?.minimumAge))return res.status(403).json({code:'AGE_REQUIRED',error:'Confirm that you are 13 or older before using account preferences.'});
   if(req.method==='GET') {
    return res.status(200).json({profile:normalizeStoredProfile(user.privateMetadata.ezeatsProfile||{}),completed:Boolean(user.privateMetadata.ezeatsOnboarded)});
   }

@@ -42,6 +42,17 @@ test('Age confirmation is required server-side and cannot be asserted through pr
  assert.equal((await call('PATCH',{ageConfirmed:true})).code,200);
  assert.equal((await call('GET')).code,200);
  assert.ok(writes.every(id=>id==='verified-user'));
+ assert.equal(privateMetadata.ezeatsAgeConfirmation.minimumAge,13);
+ const confirmation=privateMetadata.ezeatsAgeConfirmation;
+ const writeCount=writes.length;
+ await call('PATCH',{ageConfirmed:true});
+ assert.equal(writes.length,writeCount);
+ assert.equal(privateMetadata.ezeatsAgeConfirmation,confirmation);
+ await call('DELETE');
+ assert.equal((await call('GET')).code,200);
+ privateMetadata.ezeatsAgeConfirmation={minimumAge:14,confirmedAt:'2026-09-15T00:00:00.000Z'};
+ assert.equal((await call('GET')).code,200);
+ await call('PATCH',{ageConfirmed:true});
  assert.equal(privateMetadata.ezeatsAgeConfirmation.minimumAge,14);
 });
 test('Cross-origin writes and unsupported methods fail closed',async()=>{
