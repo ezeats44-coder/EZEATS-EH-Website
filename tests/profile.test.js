@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {validateProfile,mealDefaults,fields} from '../dist/profile-schema.js';
 import {meals,rankMeals} from '../dist/meals.js';
 import {applyProfile} from '../dist/profile-matching.js';
-import handler from '../api/profile.js';
+import handler,{createProfileHandler} from '../api/profile.js';
 test('Profile rejects unknown fields, invalid enums and oversized text',()=>{
  for(const input of [{userId:'someone-else'},{spice:9},{allergies:'Milk'},{avoid:'a'.repeat(201)},null])assert.throws(()=>validateProfile(input));
  assert.deepEqual(validateProfile({name:'   ',allergies:['Milk','Milk']}),{name:'',allergies:['Milk']});
@@ -25,10 +25,24 @@ test('Allergy screening excludes known ingredients and pauses on additional alle
  assert.equal(new Set(meals.map(m=>m.id)).size,meals.length);
 });
 test('Unauthenticated profile requests cannot read, change, or delete data',async()=>{
- for(const method of ['GET','PUT','DELETE']){
+ for(const method of ['GET','PUT','PATCH','DELETE']){
  const response={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};
  await handler({method,headers:{},body:{profile:{name:'Intruder'},completed:true}},response);assert.equal(response.code,401);
  }
+});
+test('Age confirmation is required server-side and cannot be asserted through profile data',async()=>{
+ const privateMetadata={},writes=[];
+ const h=createProfileHandler(()=>({authenticateRequest:async()=>({toAuth:()=>({userId:'verified-user'})}),users:{getUser:async()=>({privateMetadata}),updateUserMetadata:async(id,patch)=>{writes.push(id);Object.assign(privateMetadata,patch.privateMetadata);}}}));
+ const call=async(method,body)=>{const r={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};await h({method,headers:{authorization:'Bearer fixture'},body},r);return r;};
+ assert.equal((await call('GET')).body.code,'AGE_REQUIRED');
+ assert.equal((await call('PUT',{profile:{name:'Test'},completed:true})).code,403);
+ assert.equal((await call('PATCH',{ageConfirmed:false})).code,400);
+ assert.equal((await call('PATCH',{ageConfirmed:true,userId:'another-user'})).code,400);
+ assert.equal((await call('DELETE')).code,200);
+ assert.equal((await call('PATCH',{ageConfirmed:true})).code,200);
+ assert.equal((await call('GET')).code,200);
+ assert.ok(writes.every(id=>id==='verified-user'));
+ assert.equal(privateMetadata.ezeatsAgeConfirmation.minimumAge,14);
 });
 test('Cross-origin writes and unsupported methods fail closed',async()=>{
  const r={setHeader(){},status(n){this.code=n;return this;},json(){return this;}};
