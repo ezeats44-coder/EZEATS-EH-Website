@@ -9,3 +9,5 @@ node_modules/
 sources/
 AGENTS.md
 .env*
+
+.local-data/
