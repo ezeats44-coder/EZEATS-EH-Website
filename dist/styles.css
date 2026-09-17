@@ -25,7 +25,9 @@
 @media(max-width:420px){.site-header{gap:12px;padding:0 16px}.site-nav{gap:12px}.site-nav .text-button{font-size:12px}.site-nav .text-button span{margin-left:2px}.about-image figcaption{padding:0 20px 22px;font-size:12px}.about-copy .about-lead{font-size:19px}}
 @media(max-width:350px){.site-header{height:auto;min-height:80px;flex-wrap:wrap;padding-top:14px;padding-bottom:14px}.site-nav{margin-left:auto}}
 /* Transparent horizontal EZEATS EH logo. */
-.site-header{height:100px}.brand-logo{display:block;flex-shrink:0;line-height:0}.brand-logo img{display:block;width:270px;height:auto}
+.site-header{height:100px}.brand-logo{display:block;position:relative;flex-shrink:0;line-height:0}.brand-logo img{display:block;width:270px;height:auto;clip-path:inset(0 15% 0 0)}
+/* Keep the original emblem/wordmark and replace its large EH with a small legal suffix. */
+.brand-logo::after{content:'EH LLC';position:absolute;left:85%;top:66.7%;transform:translateY(-100%);font-family:Manrope,sans-serif;font-size:7px;font-weight:800;line-height:1;letter-spacing:0;white-space:nowrap;color:var(--ink)}
 @media(max-width:760px){.site-header{height:90px}.brand-logo img{width:210px}}
 @media(max-width:350px){.site-header{height:auto;min-height:90px}.brand-logo img{width:170px}}
 
