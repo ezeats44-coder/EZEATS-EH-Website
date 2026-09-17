@@ -59,3 +59,16 @@ test('Shared review API uses production origin allowlist and reports throttling'
  let res=response();await handler({method:'POST',headers:{origin:'https://www.ezeats-eh.com'},body:valid},res);assert.equal(res.statusCode,429);
  res=response();await handler({method:'POST',headers:{host:'evil.test',origin:'http://evil.test'},body:valid},res);assert.equal(res.statusCode,403);
 });
+
+import {createOwnerHandler} from '../api/owner.js';
+test('Owner dashboard access accepts every explicitly listed owner and denies others or failures',async()=>{
+ for(const [id,list,expected] of [['first','first, second',200],['second','first, second',200],['stranger','first, second',403],['first','',403],[null,'first',403]]){
+  const handler=createOwnerHandler({owners:()=>list,makeClient:()=>({authenticateRequest:async()=>({toAuth:()=>({userId:id})})})});
+  const res=response();await handler({method:'GET',headers:{authorization:'Bearer verified'}},res);assert.equal(res.statusCode,expected);assert.equal(res.body.owner,expected===200);
+ }
+ const handler=createOwnerHandler({makeClient:()=>{throw new Error('unavailable');}});
+ let res=response();await handler({method:'GET',headers:{}},res);assert.equal(res.statusCode,401);
+ res=response();await handler({method:'POST',headers:{}},res);assert.equal(res.statusCode,405);
+ res=response();await handler({method:'GET',headers:{authorization:'Bearer invalid'}},res);assert.equal(res.statusCode,503);assert.equal(res.body.owner,false);
+ res=response();await handler({method:'GET',headers:{authorization:'Bearer token',origin:'https://unrelated.test'}},res);assert.equal(res.statusCode,403);
+});

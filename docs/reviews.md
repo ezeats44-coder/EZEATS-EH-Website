@@ -35,3 +35,9 @@ server/review-store.js uses parameterized Neon serverless queries. scripts/revie
 The hosted moderation endpoint requires both a verified Clerk session and an explicit owner ID. Local moderation remains loopback-only and uses the JSON store. DATABASE_URL and CLERK_SECRET_KEY stay server-side. No production deployment has occurred. Tests cover denial for guests, other users, an empty owner allowlist, invalid origins, and permitted owner actions using injected identity/storage doubles; the actual database pending, duplicate, publication of critical feedback, and rejection transitions also passed a Neon SQL transaction test, rolled back with zero test rows remaining. Live browser-to-hosted-API owner sign-in still requires an isolated review release and end-to-end verification.
 
 Current verification: 38 automated tests pass; syntax/link checks pass. Database schema creation succeeded (four statements). A real SQL transaction verified pending status, retry deduplication, publishing a two-star critical review, and hiding it; ROLLBACK left zero test rows. Nothing has been deployed.
+
+## Owner dashboard
+
+`/owner/` contains the review-management link and a reserved area for future tools. `dist/owner-access.js` adds the Owner navigation tab only after `/api/owner` verifies the signed-in session against the server allowlist. The tab is removed on session changes. The static page contains no private records; all privileged endpoints must use `server/owner-access.js`. Unauthorized visitors see an access message and no tools.
+
+To add an owner, verify their existing production Clerk account and add its user ID to the comma-separated `REVIEW_ADMIN_USER_IDS` production variable, preserving existing IDs. Redeploy for the new setting to take effect. Do not use client-provided email addresses as authorization. This same list controls reviews and the dashboard.

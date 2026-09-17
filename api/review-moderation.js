@@ -1,17 +1,13 @@
 import {createClerkClient} from '@clerk/backend';
 import {createDatabaseReviewStore} from '../server/review-store.js';
-import {reviewOrigins} from '../server/review-origins.js';
+import {ownerIdentity} from '../server/owner-access.js';
 export function createModerationHandler({store,makeClient=createClerkClient,owners=()=>process.env.REVIEW_ADMIN_USER_IDS||''}={}){return async(req,res)=>{
  res.setHeader('Cache-Control','private, no-store');
  if(!['GET','POST'].includes(req.method))return res.status(405).json({error:'Method not allowed.'});
- const origins=reviewOrigins();
- if(req.headers.origin&&!origins.includes(req.headers.origin))return res.status(403).json({error:'Origin not allowed.'});
- if(!req.headers.authorization?.startsWith('Bearer '))return res.status(401).json({error:'Sign in with your owner account to manage reviews.'});
  try{
-  const client=makeClient({secretKey:process.env.CLERK_SECRET_KEY,publishableKey:process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY});
-  const session=await client.authenticateRequest(new Request(`${origins[0]}/api/review-moderation`,{headers:{authorization:req.headers.authorization}}),{authorizedParties:origins});
-  const {userId}=session.toAuth()||{};
-  if(!userId||!owners().split(',').map(s=>s.trim()).filter(Boolean).includes(userId))return res.status(403).json({error:'Only the EZEATS owner can manage reviews.'});
+  const access=await ownerIdentity(req,{makeClient,owners});
+  if(access.status!==200)return res.status(access.status).json({error:access.status===401?'Sign in with your owner account to manage reviews.':'Only an EZEATS owner can manage reviews.'});
+  const userId=access.userId;
   const db=store||createDatabaseReviewStore();
   if(!db)throw new Error('Storage unavailable');
   if(req.method==='GET')return res.status(200).json({pending:await db.pending(),published:await db.published(),local:false});
