@@ -11,8 +11,8 @@ export function bindFieldHelp(root){
   button.addEventListener('click',()=>{pinned=!pinned;show(pinned);});
   button.addEventListener('focus',()=>show(true));
   button.addEventListener('blur',()=>{pinned=false;show(false);});
-  button.parentElement.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(true);});
-  button.parentElement.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!pinned)show(false);});
+  button.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')show(true);});
+  button.addEventListener('pointerleave',e=>{if(e.pointerType==='mouse'&&!pinned)show(false);});
   button.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();pinned=false;show(false);}});
  });
 }
