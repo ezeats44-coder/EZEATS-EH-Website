@@ -31,7 +31,7 @@ export const sections = [
   {key:'name',label:'What should we call you?',text:true,max:60},
   {key:'age',label:'Age range',options:['13–17','18–24','25–34','35–44','45–54','55–64','65+','Prefer not to say'],help:'EZEATS accounts are for people age 13 and older. Sharing your age range here is optional.'},
   {key:'gender',label:'Gender',options:['Male','Female','Prefer not to say']},
-  {key:'relationship',label:'Relationship status',options:['Single','Dating / partnered','Married','Another description','Prefer not to say']},
+  {key:'relationship',label:'Relationship status',help:'Optional. We ask to understand your usual dining context for future personalization. This answer does not currently affect your recommendations.',options:['Single','Dating / partnered','Married','Another description','Prefer not to say']},
   {key:'student',label:'Are you currently a student?',options:['Yes','No','Prefer not to say']},
   {key:'pregnancy',label:'Are you currently pregnant?',options:['Yes','No','Not applicable','Prefer not to say'],help:'Optional sensitive information. This is not used to assess food safety or provide pregnancy-specific recommendations.'}
  ]}
