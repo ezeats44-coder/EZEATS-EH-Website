@@ -1,6 +1,6 @@
 // Conservative ingredient screening for the curated recipes, not an allergen-free guarantee.
 import {foodPreferenceMatch} from './food-preferences.js';
-const allergens={
+export const allergens={
  'grilled-cheese':['Milk','Wheat'], 'salmon-rice':['Fish','Soy','Sesame'],
  'pesto-pasta':['Milk','Wheat','Tree nuts'], 'avocado-toast':['Eggs','Wheat'],
  'tofu-stir-fry':['Soy','Sesame'], 'chicken-wrap':['Wheat','Sesame'],

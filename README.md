@@ -40,3 +40,7 @@ Dietary tags apply to the exact listed ingredients, including specified gluten-f
 Verified all 5,184 allowed preference combinations for dietary, time, budget, and heat limits; non-repeating results; descending preference rank; and invalid-input handling. JavaScript syntax and local asset references were checked. Browser interaction testing was not requested. Optional WebMCP registration is feature-detected; a supported browser context was unavailable for live WebMCP validation.
 
 Vercel documentation: https://vercel.com/docs/git and https://vercel.com/docs/project-configuration/vercel-json
+
+## Recipe catalog preview
+
+See [recipe catalog](docs/recipe-catalog.md) and [preview audit](docs/recipe-preview-audit.md). First-party meal details are available after selection. Missing authored quantities and instructions stay unknown. TheMealDB is local-development-only; submissions, uploads and recipe moderation routes are disabled.
