@@ -4,8 +4,9 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "check": "node scripts/check.mjs",
-    "dev": "node scripts/dev.mjs"
+    "check": "node scripts/recipe-catalog.mjs --check && node scripts/check.mjs",
+    "dev": "node scripts/dev.mjs",
+    "catalog:generate": "node scripts/recipe-catalog.mjs"
   },
   "engines": {
     "node": "24.x"

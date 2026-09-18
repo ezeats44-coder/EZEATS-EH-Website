@@ -1,0 +1,210 @@
+{
+  "chickpea-bowl": {
+    "emoji": "🥑",
+    "mood": [
+      "fresh"
+    ],
+    "adventure": 1
+  },
+  "tomato-pasta": {
+    "emoji": "🍝",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "black-bean-tacos": {
+    "emoji": "🌮",
+    "mood": [
+      "bold",
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "grilled-cheese": {
+    "emoji": "🥪",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "salmon-rice": {
+    "emoji": "🍚",
+    "mood": [
+      "fresh",
+      "bold"
+    ],
+    "adventure": 1
+  },
+  "coconut-curry": {
+    "emoji": "🍛",
+    "mood": [
+      "bold",
+      "comfort"
+    ],
+    "adventure": 1
+  },
+  "pesto-pasta": {
+    "emoji": "🍝",
+    "mood": [
+      "fresh",
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "avocado-toast": {
+    "emoji": "🥑",
+    "mood": [
+      "fresh",
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "tofu-stir-fry": {
+    "emoji": "🥦",
+    "mood": [
+      "fresh",
+      "bold"
+    ],
+    "adventure": 1
+  },
+  "chicken-wrap": {
+    "emoji": "🌯",
+    "mood": [
+      "fresh"
+    ],
+    "adventure": 0
+  },
+  "chili-bowl": {
+    "emoji": "🥣",
+    "mood": [
+      "comfort",
+      "bold"
+    ],
+    "adventure": 0
+  },
+  "baked-potato": {
+    "emoji": "🥔",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "shrimp-tacos": {
+    "emoji": "🌮",
+    "mood": [
+      "bold",
+      "fresh"
+    ],
+    "adventure": 1
+  },
+  "rice-noodles": {
+    "emoji": "🍜",
+    "mood": [
+      "fresh",
+      "bold"
+    ],
+    "adventure": 1
+  },
+  "margherita": {
+    "emoji": "🍕",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "chicken-rice": {
+    "emoji": "🍗",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "lentil-salad": {
+    "emoji": "🥗",
+    "mood": [
+      "fresh"
+    ],
+    "adventure": 1
+  },
+  "kimchi-rice": {
+    "emoji": "🍚",
+    "mood": [
+      "bold",
+      "comfort"
+    ],
+    "adventure": 1
+  },
+  "mushroom-polenta": {
+    "emoji": "🍄",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 1
+  },
+  "greek-salad": {
+    "emoji": "🥗",
+    "mood": [
+      "fresh"
+    ],
+    "adventure": 0
+  },
+  "breakfast-tacos": {
+    "emoji": "🌮",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "spicy-basil-tofu": {
+    "emoji": "🍛",
+    "mood": [
+      "bold"
+    ],
+    "adventure": 1
+  },
+  "cajun-shrimp": {
+    "emoji": "🍤",
+    "mood": [
+      "bold"
+    ],
+    "adventure": 1
+  },
+  "sweet-potato-bowl": {
+    "emoji": "🍠",
+    "mood": [
+      "fresh",
+      "comfort"
+    ],
+    "adventure": 1
+  },
+  "beef-burger": {
+    "emoji": "🍔",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "tomato-gf-pasta": {
+    "emoji": "🍝",
+    "mood": [
+      "comfort"
+    ],
+    "adventure": 0
+  },
+  "tuna-bowl": {
+    "emoji": "🥣",
+    "mood": [
+      "fresh"
+    ],
+    "adventure": 0
+  },
+  "stuffed-peppers": {
+    "emoji": "🫑",
+    "mood": [
+      "comfort",
+      "bold"
+    ],
+    "adventure": 1
+  }
+}

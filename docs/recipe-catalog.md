@@ -1,14 +1,16 @@
-# Recipe catalog phase one
+# Recipe catalog architecture
+
+**Current catalog:** 100 complete original recipe drafts; all still need owner review and kitchen testing. See [current authoring and safety notes](first-party-100.md) and [per-ID review report](recipe-review-report.md). Historical validation counts below describe earlier phases.
 
 Local development only. No deployment, provider account, paid subscription, production credential, tracking, or database migration is part of this phase.
 
 ## Existing behavior and ownership
 
-EZEATS is static HTML/CSS/browser ES modules, with Node 24 Vercel functions. `dist/meals.js` remains the single source of 28 first-party meal ideas. The legacy picker IDs, hard limits, profile exclusion checks, ranking, history, account eligibility, guest flow and nearby work remain in place. `dist/app.js` adds a detail link after acceptance. `dist/profile-matching.js` exports its existing known-allergen map without changing its filtering behavior.
+EZEATS is static HTML/CSS/browser ES modules, with Node 24 Vercel functions. `server/recipes/owned/` is the source of 100 original recipes. Generated `dist/meal-catalog.js` summaries feed `dist/meals.js` ranking. The legacy picker IDs, hard limits, profile exclusion checks, ranking, history, account eligibility, guest flow and nearby work remain in place. `dist/app.js` adds a detail link after acceptance. `dist/profile-matching.js` exports its existing known-allergen map without changing its filtering behavior.
 
-The local provider wraps each meal as `ezeats:<legacy-id>`. It does not claim the meal ideas are complete recipes: quantities, servings, preparation/cooking split, difficulty, meal-type classification, instructions, images and verification dates are unknown where absent. Total time and cost remain explicitly illustrative estimates. Authoring and kitchen-verifying full recipes is a separate content task. No fabricated directions, food-safety temperatures, nutrition or quantities are generated.
+The local provider returns complete authored records with `ezeats:<legacy-id>` identities. Servings, preparation/cooking/total time, quantities, ordered instructions and classifications are provided. Original IDs remain stable. Editorial estimates and screening are not kitchen testing or verified allergy safety. Images and recipe verification dates remain null; editorial review date is recorded separately.
 
-Third-party results use separate namespaces. They never replace or enter the 28-meal picker or its history. The recipe UI and catalog consume normalized records, not TheMealDB field names. Existing picker-specific scoring fields remain a compatibility layer; expanding picker ranking to provider recipes requires an explicit later integration and safety review.
+Third-party results use separate namespaces. They never replace or enter the 100-recipe picker or its history. The recipe UI and catalog consume normalized records, not TheMealDB field names. Existing picker-specific scoring fields remain a compatibility layer; expanding picker ranking to provider recipes requires an explicit later integration and safety review.
 
 ## Recipe v1 schema
 
@@ -18,7 +20,7 @@ Third-party results use separate namespaces. They never replace or enter the 28-
 | id | Stable provider namespace plus source identity, e.g. `ezeats:chickpea-bowl`, `themealdb:52772` |
 | title, description | Title required; description nullable |
 | servings | Positive number or null |
-| time | preparationMinutes, cookingMinutes, totalMinutes: positive numbers or null; estimated boolean |
+| time | preparationMinutes, cookingMinutes, totalMinutes: nonnegative preparation/cooking minutes; positive total or null; estimated boolean |
 | ingredients | Array of `{quantity: string|null, unit: string|null, name: string, notes: string|null}` |
 | instructions | Ordered `{order: 1-based integer, text: string}` entries, or null when unavailable |
 | cuisine, difficulty | String or null |
@@ -27,6 +29,8 @@ Third-party results use separate namespaces. They never replace or enter the 28-
 | estimatedCost | `{amount, currency, basis, estimated}` or null |
 | imageUrl | HTTPS URL or null; detail page deliberately does not load external images in this phase |
 | source | provider, originalUrl (nullable), optional providerUrl, attribution, licensingStatus, verifiedAt (nullable), ownership (`first-party` or `third-party`) |
+| editorial (optional) | Reviewed draft status/date/reviewer, owner review required, kitchenTested false, notes |
+| safety (optional) | Handling notes, official HTTPS references and checked date |
 | suitability | status (`unverified` in current adapters), ingredientsComplete, allergensComplete, dietEvidence, notes |
 
 Null is unknown, not zero. Lists do not imply completeness. Retrieval is not verification. Raw provider fields and credentials do not cross the API boundary. Invalid identity, attribution, ingredient structures or step ordering fail validation. Duplicate IDs are deduplicated without generating unstable replacements. UI text uses textContent and external links accept HTTPS only.
@@ -35,7 +39,7 @@ Null is unknown, not zero. Lists do not imply completeness. Retrieval is not ver
 
 `server/recipes/provider.js` documents the interface: namespace, async search({q,limit},{signal}), async getById(namespacedId,{signal}), normalize(raw). Search returns normalized records; retrieval returns one or null. Adapters own upstream fields. `catalog.js` validates results, namespaces, deduplicates, applies restrictions and limits, and aborts/times out after four seconds. No failed provider silently falls back to different recipes.
 
-`GET /api/recipes`: optional provider (`ezeats` default), q (maximum 80 characters), limit (1–28, default 12), diets, allergens, exclude (comma-separated, maximum ten entries of 60 characters each). Unknown/duplicate parameters and unsupported enums fail with 400. `id` retrieves one normalized recipe and cannot be combined with q; namespace and provider must match. Detail result shape `{recipe}`, search `{recipes}`. Empty search returns 200/empty array; missing or excluded detail returns 404; disabled adapter 403; rate limit 429; upstream/malformed/timeout 503. Unsupported methods return 405. No account required.
+`GET /api/recipes`: optional provider (`ezeats` default), q (maximum 80 characters), limit (1–100, default 12), diets, allergens, exclude (comma-separated, maximum ten entries of 60 characters each). Unknown/duplicate parameters and unsupported enums fail with 400. `id` retrieves one normalized recipe and cannot be combined with q; namespace and provider must match. Detail result shape `{recipe}`, search `{recipes}`. Empty search returns 200/empty array; missing or excluded detail returns 404; disabled adapter 403; rate limit 429; upstream/malformed/timeout 503. Unsupported methods return 405. No account required.
 
 Responses use private/no-store. Only search text or source ID goes upstream, never account identifiers, profile fields, location, or restriction lists. Provider URLs are fixed official endpoints, not user-controlled URLs. The upstream response is streamed with a 1 MB ceiling, at most 100 records inspected and no redirects. No bulk/list/random endpoints or background downloads.
 
@@ -43,7 +47,7 @@ A per-process global request budget permits 60 requests/minute without recording
 
 ## Restrictions and suitability
 
-Recipe categories never establish diet/allergen compatibility. TheMealDB normalizer assigns no diet claims from its category field and marks ingredient/allergen completeness false. Recipe searches with allergy or ingredient exclusions fail closed when evidence is incomplete; diet constraints require explicit evidence and matching tags. No exclusion is relaxed to fill results. Current first-party tags retain the existing meal idea labels, but ingredient lists are not exhaustive and allergy completeness is false. Known allergens from the existing map remain visible as warnings. This stricter catalog screening does not silently alter the existing picker algorithm.
+Recipe categories never establish diet/allergen compatibility. TheMealDB normalizer assigns no diet claims from its category field and marks ingredient/allergen completeness false. Recipe searches with allergy or ingredient exclusions fail closed when evidence is incomplete; diet constraints require explicit evidence and matching tags. No exclusion is relaxed to fill results. First-party tags and known-allergen warnings now derive from complete authored ingredient specifications. Coverage flags refer to these specifications only; brand ingredients and cross-contact remain unverified. This stricter catalog screening does not silently alter the existing picker algorithm.
 
 Detail lookup is an informational view, not a fresh personalized recommendation. It labels suitability unverified and does not claim to have checked a user's account. The first-party link comes from the already-filtered picker selection. Provider detail URLs are local development diagnostics only and must not be presented as personalized matches.
 
@@ -64,7 +68,7 @@ Official documentation reviewed September 17, 2026:
 
 | Option | Detail experience | Production decision |
 | --- | --- | --- |
-| EZEATS owned | Owned meal ideas now; original full recipes can be authored and verified | Review authored quantities/steps, evidence, imagery and licensing |
+| EZEATS owned | 100 original full drafts; owner review and kitchen testing remain required | Review authored quantities/steps, evidence, imagery and licensing |
 | TheMealDB development | Ingredients/instructions where supplied; uncertain serving/time/allergens | Obtain permitted production access, confirm commercial and third-party rights, attribution and storage policy before enabling |
 | Edamam web | Normalized metadata and source link; instructions unavailable | Choose authorized plan and source-link experience; never scrape publisher instructions |
 | Edamam licensed | Instructions and licensed assets if agreement grants them | Explicit approval of costs/contract, credential scope, permitted display/retention and restrictions |

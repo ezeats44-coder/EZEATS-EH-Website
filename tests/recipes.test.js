@@ -10,11 +10,11 @@ import {createPreviewServer} from '../scripts/dev.mjs';
 const fixture={idMeal:'12345',strMeal:'Synthetic test bowl',strIngredient1:'Test beans',strMeasure1:'1 cup',strInstructions:'First test step.\r\n\r\nSecond test step.',strArea:'Test cuisine',strCategory:'Vegan',strSource:'https://example.com/recipe',strMealThumb:'javascript:bad'};
 const provider=createMealDBProvider();
 const response=()=>({statusCode:200,headers:{},setHeader(k,v){this.headers[k]=v;},status(n){this.statusCode=n;return this;},json(b){this.body=b;return this;}});
-test('28 first-party meals retain IDs, estimates, ingredients and picker ranking',async()=>{
- assert.equal(meals.length,28);const all=await localProvider.search({limit:28});assert.equal(all.length,28);
- for(const m of meals){const r=await localProvider.getById(`ezeats:${m.id}`);assert.equal(r.title,m.name);assert.equal(r.time.totalMinutes,m.minutes);assert.deepEqual(r.ingredients.map(i=>i.name),m.ingredients);assert.equal(r.instructions,null);assert.equal(r.servings,null);}
+test('100 first-party recipes retain picker mapping and ranking',async()=>{
+ assert.equal(meals.length,100);const all=await localProvider.search({limit:100});assert.equal(all.length,100);
+ for(const m of meals){const r=await localProvider.getById(`ezeats:${m.id}`);assert.equal(r.title,m.name);assert.equal(r.time.totalMinutes,m.minutes);assert.deepEqual(r.ingredients.map(i=>i.name),m.ingredients);assert.ok(r.instructions.length);assert.ok(r.servings>0);}
  assert.equal(await localProvider.getById('ezeats:missing'),null);
- assert.equal(rankMeals({...defaults,time:60,budget:20,heat:2},()=>0).length,28);
+ assert.equal(rankMeals({...defaults,time:60,budget:20,heat:2},()=>0).length,100);
  for(const m of rankMeals({...defaults,diets:['vegan']},()=>0)){assert.ok(m.diets.includes('vegan'));assert.ok(await localProvider.getById('ezeats:'+m.id));}
 });
 test('Provider normalization retains attribution, unknowns, order and raw ambiguous measures without inventing diet safety',()=>{
@@ -28,7 +28,7 @@ test('Hard exclusions reject unknown evidence, conflicting ingredients and unsup
  const r=provider.normalize(fixture);for(const restrictions of [{allergens:['Milk']},{diets:['vegan']},{exclude:['beans']}])assert.equal(matchesRestrictions(r,restrictions),false);
  const known={...r,knownAllergens:['Milk'],dietTags:['vegetarian'],suitability:{...r.suitability,ingredientsComplete:true,allergensComplete:true,dietEvidence:true}};
  assert.equal(matchesRestrictions(known,{allergens:['Milk']}),false);assert.equal(matchesRestrictions(known,{exclude:['beans']}),false);assert.equal(matchesRestrictions(known,{diets:['vegan']}),false);
- assert.deepEqual(await createCatalog(localProvider)({allergens:['Milk']}),[]);
+ assert.ok((await createCatalog(localProvider)({allergens:['Milk']})).every(r=>!r.knownAllergens.includes('Milk')));
 });
 test('Catalog handles empty results, duplicate IDs, missing attribution, failure and timeout',async()=>{
  const base={...provider,search:async()=>[]};assert.deepEqual(await createCatalog(base)({}),[]);
@@ -47,7 +47,7 @@ test('TheMealDB uses only exact official endpoints and rejects malformed or fail
  assert.deepEqual(await createMealDBProvider(async()=>new Response('{"meals":null}')).search({q:'aa'}),[]);
 });
 test('API validates queries, denies hosted development provider, enforces limits, handles missing/failing providers',async()=>{
- for(const q of ['?limit=0','?limit=29','?limit=2x','?id=ezeats:a&q=x','?id=../x','?q=a&q=b','?unknown=1','?diets=magic','?allergens=unknown','?provider=themealdb&q=a'])assert.throws(()=>parseRecipeQuery('/api/recipes'+q));
+ for(const q of ['?limit=0','?limit=101','?limit=2x','?id=ezeats:a&q=x','?id=../x','?q=a&q=b','?unknown=1','?diets=magic','?allergens=unknown','?provider=themealdb&q=a'])assert.throws(()=>parseRecipeQuery('/api/recipes'+q));
  const call=async(h,url,headers={host:'localhost:4184'},method='GET')=>{const r=response();await h({url,headers,method},r);return r;};
  assert.equal((await call(createRecipesHandler(),'/api/recipes?id=ezeats:chickpea-bowl')).statusCode,200);
  assert.equal((await call(createRecipesHandler(),'/api/recipes?id=ezeats:missing')).statusCode,404);

@@ -2,13 +2,13 @@ import {localProvider} from '../server/recipes/local.js';
 import {createMealDBProvider} from '../server/recipes/themealdb.js';
 import {createCatalog} from '../server/recipes/catalog.js';
 const diets=['vegetarian','vegan','pescatarian','gluten-free','dairy-free'];
-const allergens=['Milk','Wheat','Fish','Soy','Sesame','Eggs','Tree nuts','Shellfish','Peanuts'];
+const allergens=['Milk','Wheat','Fish','Soy','Sesame','Eggs','Tree nuts','Shellfish','Peanuts','Mustard'];
 export function parseRecipeQuery(raw){
  const params=new URL(raw,'http://localhost').searchParams,keys=['id','q','provider','limit','diets','allergens','exclude'];
  for(const k of params.keys())if(!keys.includes(k)||params.getAll(k).length!==1)throw new Error('Invalid query parameter');
  const id=params.get('id'),q=params.get('q')||'',provider=params.get('provider')||id?.split(':')[0]||'ezeats';
  if(!['ezeats','themealdb'].includes(provider)||id&&(!/^(ezeats:[a-z0-9-]{1,80}|themealdb:\d{1,12})$/.test(id)||!id.startsWith(provider+':'))||q.length>80||/[\x00-\x1f]/.test(q)||id&&params.has('q'))throw new Error('Invalid recipe query');
- const rawLimit=params.get('limit')||'12';if(!/^\d{1,2}$/.test(rawLimit)||+rawLimit<1||+rawLimit>28)throw new Error('Limit must be 1–28');
+ const rawLimit=params.get('limit')||'12';if(!/^\d{1,3}$/.test(rawLimit)||+rawLimit<1||+rawLimit>100)throw new Error('Limit must be 1–100');
  const list=k=>{const raw=params.get(k);if(!raw)return [];const values=raw.split(',').map(s=>s.trim());if(values.length>10||values.some(s=>!s||s.length>60||/[\x00-\x1f]/.test(s)))throw new Error('Invalid restriction');return values;};
  const d=list('diets'),a=list('allergens'),exclude=list('exclude');if(d.some(v=>!diets.includes(v))||a.some(v=>!allergens.includes(v)))throw new Error('Unsupported restriction');
  if(provider==='themealdb'&&!id&&q.trim().length<2)throw new Error('Enter at least two search characters');

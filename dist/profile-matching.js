@@ -1,17 +1,9 @@
 // Conservative ingredient screening for the curated recipes, not an allergen-free guarantee.
 import {foodPreferenceMatch} from './food-preferences.js';
-export const allergens={
- 'grilled-cheese':['Milk','Wheat'], 'salmon-rice':['Fish','Soy','Sesame'],
- 'pesto-pasta':['Milk','Wheat','Tree nuts'], 'avocado-toast':['Eggs','Wheat'],
- 'tofu-stir-fry':['Soy','Sesame'], 'chicken-wrap':['Wheat','Sesame'],
- 'baked-potato':['Milk'], 'shrimp-tacos':['Shellfish'], 'rice-noodles':['Peanuts','Soy'],
- 'margherita':['Milk','Wheat'], 'kimchi-rice':['Soy','Sesame'],
- 'mushroom-polenta':['Tree nuts'], 'greek-salad':['Milk'], 'breakfast-tacos':['Eggs'],
- 'spicy-basil-tofu':['Soy'], 'cajun-shrimp':['Shellfish'], 'sweet-potato-bowl':['Sesame'],
- 'beef-burger':['Wheat','Eggs','Soy','Sesame'], 'tuna-bowl':['Fish']
-};
-const reviewed=new Set(['chickpea-bowl','tomato-pasta','black-bean-tacos','grilled-cheese','salmon-rice','coconut-curry','pesto-pasta','avocado-toast','tofu-stir-fry','chicken-wrap','chili-bowl','baked-potato','shrimp-tacos','rice-noodles','margherita','chicken-rice','lentil-salad','kimchi-rice','mushroom-polenta','greek-salad','breakfast-tacos','spicy-basil-tofu','cajun-shrimp','sweet-potato-bowl','beef-burger','tomato-gf-pasta','tuna-bowl','stuffed-peppers']);
-allergens['tomato-pasta']=['Wheat'];
+import {meals as catalogMeals} from './meal-catalog.js';
+export const allergens=Object.fromEntries(catalogMeals.map(m=>[m.id,m.knownAllergens]));
+// Reviewed ingredient specifications, not tested or allergen-safe claims. Unknown IDs fail closed.
+const reviewed=new Set(catalogMeals.map(m=>m.id));
 export function applyProfile(meals,profile={}) {
  if(profile.otherAllergies?.trim())return [];
  const avoid=(profile.avoid||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);

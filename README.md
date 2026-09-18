@@ -1,46 +1,43 @@
 # EZEATS
 
-A responsive food picker for people who cannot decide what to eat.
+Static HTML/CSS/ES-module meal picker with Node 24 Vercel APIs for Clerk accounts, saved preferences/history, moderated customer reviews and owner access. The Staying In picker has 100 original EZEATS recipes, including all 28 stable legacy IDs. Every recipe is an editorially reviewed draft, **not kitchen-tested**; owner review is still required.
 
-Choose a mood and dietary preferences, set a cooking-time limit, budget, spice tolerance, and preference for familiar or adventurous food, then get one meal with a plain-language explanation. Cycle through alternatives without repeats, or confirm your choice to see its ingredients.
+## Local development
 
-## Run locally
-
-Serve `dist` with any static HTTP server. For example:
+Use Node 24 and pinned `pnpm@11.19.0`:
 
 ```sh
-python3 -m http.server 4173 --directory dist
+pnpm install --frozen-lockfile
+pnpm dev
 ```
 
-Open http://localhost:4173. JavaScript modules require HTTP; do not open `index.html` directly as a file.
+Open http://localhost:4175. The local server provides the recipe API; a static-only server cannot load full recipe details. Guest recipes need no external credentials. Accounts require the existing Clerk environment; local reviews use `.local-data/`. Do not reuse production credentials for casual tests.
 
-## Deployment
+## Catalog authoring
 
-Live website: https://ezeats.vercel.app
+- `server/recipes/owned/recipes.js`: original ingredient quantities and specific ordered directions.
+- `server/recipes/owned/ingredients.js`: ingredient specifications, dietary evidence and allergen warnings.
+- `server/recipes/owned/catalog.js`: normalization, editorial disclosure and handling guidance.
+- `scripts/recipe-catalog.mjs`: generates lightweight `dist/meal-catalog.js` and the per-ID review report.
+- `dist/meals.js`: unchanged validation/ranking logic consumes generated summaries; no full directions in the picker bundle.
+- `api/recipes.js`: provider-neutral guest API. Full content is retrieved only when needed.
 
-This repository is connected to the existing `ezeats` Vercel project in the EZEats Eh team. The root `vercel.json` selects the static `dist` directory, skips installation/build commands, and enables automatic Git deployments. Pushes to `main` update production; pushes to other branches create preview deployments. No environment variables are required.
-
-## How matching works
-
-`dist/meals.js` contains 28 curated meal ideas. First, remove every meal that exceeds cooking time, estimated per-serving cost, or maximum heat, or fails any selected dietary preference. Rank the remainder by mood (up to 6 points), heat preference (up to 2), and familiarity preference (up to 2). Randomness breaks score ties only. Alternatives walk through the ranked list without repeating or silently relaxing limits.
-
-Dietary tags apply to the exact listed ingredients, including specified gluten-free products and vegetarian cheeses. Costs and times are illustrative home-cooking estimates, not live grocery or restaurant prices. No live restaurant search, ordering, account system, or external AI service is used. Preferences stay in memory for the current page session.
-
-## Files
-
-- `dist/index.html`: page, first step, and explanation dialog
-- `dist/styles.css`: responsive visual design
-- `dist/app.js`: accessible UI, recommendation flow, and optional WebMCP integration
-- `dist/meals.js`: meal catalog, preference validation, filtering, ranking, and explanations
-- `dist/assets/grain-bowl.webp`: original AI-generated food inspiration image
-- `vercel.json`: static hosting and automatic Git deployment configuration
+After an editorial change, run `pnpm catalog:generate`. Generated files are committed and `pnpm check` detects drift. No database migration is needed for first-party content.
 
 ## Validation
 
-Verified all 5,184 allowed preference combinations for dietary, time, budget, and heat limits; non-repeating results; descending preference rank; and invalid-input handling. JavaScript syntax and local asset references were checked. Browser interaction testing was not requested. Optional WebMCP registration is feature-detected; a supported browser context was unavailable for live WebMCP validation.
+```sh
+pnpm test
+pnpm check
+ git diff --check
+```
 
-Vercel documentation: https://vercel.com/docs/git and https://vercel.com/docs/project-configuration/vercel-json
+Tests cover all 100 records, legacy IDs, one-to-one mapping, ingredient references, dietary/allergen consistency, safe cooking instructions, all 10,368 picker preference combinations, history/accounts/reviews/owner regressions, provider failures and moderation boundaries. `check` validates generated files, JavaScript syntax, HTML links and assets. There is no separate TypeScript compiler, formatter, linter or compiled build step.
 
-## Recipe catalog preview
+## Hosting and boundaries
 
-See [recipe catalog](docs/recipe-catalog.md) and [preview audit](docs/recipe-preview-audit.md). First-party meal details are available after selection. Missing authored quantities and instructions stay unknown. TheMealDB is local-development-only; submissions, uploads and recipe moderation routes are disabled.
+The existing `vercel.json` installs with the frozen lockfile, serves `dist`, and deploys Node API functions. Existing production configuration uses Clerk keys, `DATABASE_URL` for customer reviews, and `REVIEW_ADMIN_USER_IDS` for server-side owner authorization. Recipe data adds no external service. Production lives at https://www.ezeats-eh.com/; a push can trigger deployment, so do not push this catalog branch before review.
+
+TheMealDB stays opt-in localhost development only. Public recipe submissions, image uploads, hosted recipe providers and recipe-management API routes remain disabled. The proposed moderation SQL remains unapplied. No new tracking or nearby-food MVP is included.
+
+See [recipe architecture](docs/recipe-catalog.md), [100-recipe authoring and safety notes](docs/first-party-100.md), and [per-recipe review report](docs/recipe-review-report.md). The [previous preview audit](docs/recipe-preview-audit.md) is historical evidence for the earlier 28-meal foundation, not the current catalog's completion status.
