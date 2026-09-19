@@ -38,8 +38,9 @@ export function createRecipeStore(db){
     let row=(await tx.query('SELECT * FROM recipe_records WHERE id=$1 FOR UPDATE',[id])).rows[0];
     if(action==='create'){
      if(row)throw new WorkspaceError('Recipe ID already exists.',409);
+     if(id.startsWith('ezeats-user:')!==!!actor.contributor)throw new WorkspaceError('Recipe namespace does not match the author.');
      const doc=normalizeContent(command.content,actor);if(doc.content.id!==id)throw new WorkspaceError('Recipe identity mismatch.');
-     await tx.query("INSERT INTO recipe_records(id,origin,provider,submitting_account_id,latest_version,latest_status,lock_version) VALUES($1,'ezeats-owned','EZEATS',$2,1,'draft',1)",[id,actor.userId]);
+     await tx.query("INSERT INTO recipe_records(id,origin,provider,submitting_account_id,latest_version,latest_status,lock_version) VALUES($1,$3,'EZEATS',$2,1,'draft',1)",[id,actor.userId,actor.contributor?'user-submitted':'ezeats-owned']);
      await revision(tx,id,1,null,doc,actor);await append(tx,id,1,action,'draft',actor,'');
     }else{
      if(!row)throw new WorkspaceError('Recipe not found.',404);
@@ -68,8 +69,8 @@ export function createRecipeStore(db){
     return detail(tx,id);
    });}catch(e){if(e.code==='23505')throw new WorkspaceError('Recipe ID already exists.',409);if(['40001','40P01'].includes(e.code))throw new WorkspaceError('Concurrent change detected. Reload before saving.',409);throw e;}
   },
-  // Not mounted by any public handler. Future provider reads ONLY the approved pointer.
+  // Public projection reads ONLY the approved pointer; contributor endpoint is separately gated.
   async published(id){const r=(await db.query(`SELECT v.document FROM recipe_records r JOIN recipe_revisions v ON v.recipe_id=r.id AND v.version=r.published_version WHERE r.id=$1 AND r.removed_at IS NULL`,[id])).rows[0];return r?publicRecipe(r.document):null;},
-  async publishedSearch({q='',limit=20}){const rows=(await db.query(`SELECT v.document FROM recipe_records r JOIN recipe_revisions v ON v.recipe_id=r.id AND v.version=r.published_version WHERE r.removed_at IS NULL AND strpos(lower(v.document->'content'->>'title'),lower($1))>0 ORDER BY r.id LIMIT $2`,[text(q,200),Math.min(100,Math.max(1,limit))])).rows;return rows.map(r=>publicRecipe(r.document));}
+  async publishedSearch({q='',limit=20,origin=null}){const rows=(await db.query(`SELECT v.document FROM recipe_records r JOIN recipe_revisions v ON v.recipe_id=r.id AND v.version=r.published_version WHERE r.removed_at IS NULL AND ($3::text IS NULL OR r.origin=$3) AND strpos(lower(v.document->'content'->>'title'),lower($1))>0 ORDER BY r.id LIMIT $2`,[text(q,200),Math.min(100,Math.max(1,limit)),origin])).rows;return rows.map(r=>publicRecipe(r.document));}
  };
 }

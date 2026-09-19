@@ -8,7 +8,7 @@ function render(r){
  const stats=el('div','');stats.className='recipe-stats';
  for(const text of [`Servings: ${r.servings??'not provided'}`,`Prep: ${r.time.preparationMinutes===null?'not provided':r.time.preparationMinutes+' min'}`,`Cook: ${r.time.cookingMinutes===null?'not provided':r.time.cookingMinutes+' min'}`,`Total: ${r.time.totalMinutes===null?'not provided':r.time.totalMinutes+' min'+(r.time.estimated?' (estimate)':'')}`])stats.append(el('p',text));content.append(stats);
  if(r.estimatedCost)content.append(el('p',`Estimated cost: ${r.estimatedCost.currency} ${r.estimatedCost.amount} ${r.estimatedCost.basis}. Editorial ingredient budget, not a price quote. Actual US and Canadian costs vary.`));
- const warning=el('p',`Diet and allergy suitability: unverified. ${r.suitability.notes}`);warning.className='recipe-warning';content.append(warning);
+ const warning=el('p',`Diet and allergy suitability: unverified. ${r.suitability.notes||'Contributor claims are unverified. Check packaged ingredients, substitutions and cross-contact. Not an allergy-safety guarantee.'}`);warning.className='recipe-warning';content.append(warning);
  if(r.knownAllergens.length)content.append(el('p',`Known allergens: ${r.knownAllergens.join(', ')}. This list may be incomplete.`));
  if(r.safety){const safety=el('section','');safety.className='recipe-safety';safety.append(el('h2','Before you cook'));const list=el('ul','');for(const text of r.safety.handling)list.append(el('li',text));safety.append(list);content.append(safety);}
  const columns=el('div','');columns.className='recipe-columns';
@@ -24,10 +24,10 @@ function render(r){
  if(r.editorial)source.append(el('p',`Editorial review: ${r.editorial.reviewedAt} · ${r.editorial.reviewer}. Owner review required. Not kitchen-tested.`),el('p',r.editorial.notes));
  if(r.safety){source.append(el('p',`Cooking-temperature references checked ${r.safety.checkedAt}:`));for(const [i,url] of r.safety.sources.entries()){source.append(sourceLink(i===0?'USDA cooking temperatures':i===1?'Health Canada cooking temperatures':i===2?'USDA handling guidance':'USDA leftover storage guidance',url),el('br',''));}}
  source.append(el('p',`Licensing: ${r.source.licensingStatus}`),el('p',`Recipe verification: ${r.source.verifiedAt??'not verified'}`));content.append(source);
- content.hidden=false;status.textContent=r.source.ownership==='third-party'?'Development provider content. Not part of the EZEATS-owned catalog.':r.editorial?'Original EZEATS recipe · editorially reviewed draft · not kitchen-tested.':'EZEATS meal idea. Missing recipe details are clearly marked.';
+ content.hidden=false;status.textContent=r.id.startsWith('ezeats-user:')?'Contributor recipe · claims unverified · not kitchen-tested':r.source.ownership==='third-party'?'Development provider content. Not part of the EZEATS-owned catalog.':r.editorial?'Original EZEATS recipe · editorially reviewed draft · not kitchen-tested.':'EZEATS meal idea. Missing recipe details are clearly marked.';
 }
 async function load(){content.hidden=true;retry.hidden=true;status.textContent='Loading your meal…';const id=new URLSearchParams(location.search).get('id');
- if(!id||!/^(ezeats:[a-z0-9-]{1,80}|themealdb:\d{1,12})$/.test(id)){status.textContent='Choose a meal in the picker to see its details.';return;}
- try{const response=await fetch(`/api/recipes?id=${encodeURIComponent(id)}`,{cache:'no-store',signal:AbortSignal.timeout(7000)});const data=await response.json();if(!response.ok)throw new Error(data.error);render(data.recipe);}catch(error){status.textContent=error.name==='TimeoutError'?'Recipe loading timed out. Please try again.':error.message||'Recipe unavailable. Please try again.';retry.hidden=false;}
+ if(!id||!/^(ezeats-user:[a-z0-9-]{1,88}|ezeats:[a-z0-9-]{1,80}|themealdb:\d{1,12})$/.test(id)){status.textContent='Choose a meal in the picker to see its details.';return;}
+ try{const response=await fetch(`/api/${id.startsWith('ezeats-user:')?'community-recipes':'recipes'}?id=${encodeURIComponent(id)}`,{cache:'no-store',signal:AbortSignal.timeout(7000)});const data=await response.json();if(!response.ok)throw new Error(data.error);render(data.recipe);}catch(error){status.textContent=error.name==='TimeoutError'?'Recipe loading timed out. Please try again.':error.message||'Recipe unavailable. Please try again.';retry.hidden=false;}
 }
 retry.addEventListener('click',load);load();

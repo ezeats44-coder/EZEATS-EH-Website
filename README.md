@@ -43,3 +43,7 @@ The existing `vercel.json` installs with the frozen lockfile, serves `dist`, and
 TheMealDB stays opt-in localhost development only. Public recipe submissions, image uploads and hosted recipe providers remain disabled. The new owner recipe API is separately feature-gated and uses a dedicated recipe connection, never the review database by fallback. The historical proposed moderation SQL remains unapplied and is superseded by the locally tested workspace migration. No new tracking or nearby-food MVP is included.
 
 See [recipe architecture](docs/recipe-catalog.md), [100-recipe authoring and safety notes](docs/first-party-100.md), and [per-recipe review report](docs/recipe-review-report.md). The [previous preview audit](docs/recipe-preview-audit.md) is historical evidence for the earlier 28-meal foundation, not the current catalog's completion status.
+
+## Invitation-only contributor beta (local, not deployed)
+
+See [implementation and release gates](docs/contributor-beta.md), [unpublished privacy draft](docs/contributor-privacy-draft.md), and [verification report](docs/contributor-beta-verification.md). `pnpm verify:contributors:browser` starts a disposable local database and simulated accounts on port 4195. Hosted contributor access and community publication are off by default; no production changes are authorized by these instructions.

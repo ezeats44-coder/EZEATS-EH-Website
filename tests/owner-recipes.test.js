@@ -71,7 +71,7 @@ test('Bounded queue search, status/author/date/meal/diet filters, empty results 
 });
 const response=()=>({setHeader(){},status(n){this.code=n;return this;},json(data){this.data=data;return this;}});
 const authOptions={owners:()=>actor.userId,makeClient:()=>({authenticateRequest:async request=>({toAuth:()=>({userId:request.headers.get('authorization')==='Bearer owner'?actor.userId:'intruder'})})})};
-const req=(method='GET',body,query={})=>({method,body,query,headers:{authorization:'Bearer owner','content-type':'application/json'}});
+const req=(method='GET',body,query={})=>({method,body,query,headers:{origin:'https://www.ezeats-eh.com',authorization:'Bearer owner','content-type':'application/json'}});
 test('Every owner API operation checks Clerk/allowlist; nonowners, guest, forged IDs and wrong origins fail',async()=>{
  let writes=0;const handler=createOwnerRecipesHandler({store:{rateLimit:async()=>{},list:async()=>({items:[]}),mutate:async()=>{writes++;}},authOptions,enabled:()=>true});
  for(const action of ['create','save','submit','approve','publish','approve-and-publish','request-changes','reject','remove']){const r=req('POST',{action,userId:actor.userId,role:'owner'});r.headers.authorization='Bearer attacker';const s=response();await handler(r,s);assert.equal(s.code,403);}

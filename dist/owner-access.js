@@ -1,3 +1,4 @@
+import './contributor-access.js';
 import {accountReady} from './account-client.js';
 const nav=document.querySelector('.site-nav');
 const tools=document.querySelector('#owner-tools');
