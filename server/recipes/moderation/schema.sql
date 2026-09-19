@@ -1,4 +1,6 @@
 -- DESIGN MIGRATION ONLY. Not applied; no recipe collection enabled.
+-- SUPERSEDED: do not apply this historical design. The reviewed workspace migration
+-- is ../workspace/schema.sql; it separates immutable content from append-only decisions.
 -- Payload is Recipe v1 JSON. Licensed content may be stored only with explicit rights.
 CREATE TABLE recipe_records (
  id text PRIMARY KEY CHECK (id ~ '^[a-z][a-z0-9-]*:[a-z0-9-]+$'),

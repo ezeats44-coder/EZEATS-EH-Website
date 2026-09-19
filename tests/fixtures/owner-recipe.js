@@ -1,0 +1,5 @@
+export function ownerRecipe(id='ezeats-owner:test-bean-bowl'){return {
+ id,title:'Test bean bowl',description:'An original test recipe for the private workspace.',servings:2,preparationMinutes:5,cookingMinutes:10,totalMinutes:15,
+ ingredients:[{quantity:'1',unit:'cup',name:'cooked white beans',notes:'Drained; check package labels.'},{quantity:'1/2',unit:'cup',name:'water',notes:''}],
+ steps:['Put the beans and water in a saucepan.','Heat until steaming throughout, stirring; divide between two bowls.'],cuisine:'EZEATS-inspired',mealTypes:['lunch','bowl'],difficulty:'easy',dietTags:['vegan'],knownAllergens:[],estimatedCost:3,currency:'USD',moods:['comfort'],heat:0,familiarity:'familiar',budget:'budget',author:'Test author',copyrightConfirmed:true,copyrightStatement:'Original text authored for EZEATS; I hold the rights.',safetyEvidence:'Use cooked beans, clean utensils and refrigerate leftovers promptly.',dietEvidence:'Only beans and water; verify package labels.',allergenEvidence:'Package-dependent; do not claim cross-contact safety.',privateNotes:'PRIVATE DRAFT NOTE',imageRights:{ownership:'none',owner:'',licenseStatus:'not-applicable',licenseReference:''}
+};}

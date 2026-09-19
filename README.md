@@ -36,8 +36,10 @@ Tests cover all 100 records, legacy IDs, one-to-one mapping, ingredient referenc
 
 ## Hosting and boundaries
 
+The next owner-only recipe workspace is implemented locally under `/owner/recipes/` and gated off in hosted environments by default. See [owner workspace, migration and preview approval steps](docs/owner-recipe-workspace.md). `pnpm dev:recipes` uses a local PostgreSQL database and development Clerk authentication; `pnpm verify:recipes:browser` runs a disposable simulated-owner fixture. No recipe database migration or deployment has been performed for that work, and the public picker still uses only the 100 file recipes.
+
 The existing `vercel.json` installs with the frozen lockfile, serves `dist`, and deploys Node API functions. Existing production configuration uses Clerk keys, `DATABASE_URL` for customer reviews, and `REVIEW_ADMIN_USER_IDS` for server-side owner authorization. Recipe data adds no external service. Production lives at https://www.ezeats-eh.com/; a push can trigger deployment, so do not push this catalog branch before review.
 
-TheMealDB stays opt-in localhost development only. Public recipe submissions, image uploads, hosted recipe providers and recipe-management API routes remain disabled. The proposed moderation SQL remains unapplied. No new tracking or nearby-food MVP is included.
+TheMealDB stays opt-in localhost development only. Public recipe submissions, image uploads and hosted recipe providers remain disabled. The new owner recipe API is separately feature-gated and uses a dedicated recipe connection, never the review database by fallback. The historical proposed moderation SQL remains unapplied and is superseded by the locally tested workspace migration. No new tracking or nearby-food MVP is included.
 
 See [recipe architecture](docs/recipe-catalog.md), [100-recipe authoring and safety notes](docs/first-party-100.md), and [per-recipe review report](docs/recipe-review-report.md). The [previous preview audit](docs/recipe-preview-audit.md) is historical evidence for the earlier 28-meal foundation, not the current catalog's completion status.

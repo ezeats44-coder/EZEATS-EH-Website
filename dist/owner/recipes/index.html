@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Recipe catalog — EZEATS Owner</title><link rel="icon" href="/assets/ezeats-eh-logo.png"><link rel="stylesheet" href="/styles.css"><link rel="stylesheet" href="/owner-recipes.css"></head>
+<body><main class="recipe-workspace">
+<nav aria-label="Owner tool navigation"><a class="text-button" href="/owner/">Back to Owner dashboard</a></nav>
+<div class="page-intro"><div class="eyebrow">OWNER WORKSPACE</div><h1>Your recipe <em>notebook.</em></h1><p>Create, refine and review original EZEATS recipes.</p></div>
+<p class="workspace-notice">Owner recipes only. Publishing here records an approved version in the private catalog; it does not add it to the public picker yet. The existing 100 recipes stay unchanged. Submissions, reports and image uploads are not enabled.</p>
+<p id="workspace-status" role="status" tabindex="-1">Checking owner access…</p><button id="workspace-retry" class="secondary" type="button">Retry</button>
+<a class="text-button" id="workspace-signin" href="/account/">Sign in</a>
+<section id="workspace" hidden>
+<div class="workspace-actions"><button type="button" id="create-recipe" class="primary">Create recipe</button><span>Community Reviews remains a separate Owner tool.</span></div>
+<form id="catalog-filters" class="filter-grid" aria-label="Filter recipes">
+<label>Title<input name="q" maxlength="200" type="search"></label><label>Author<input name="author" maxlength="200" type="search"></label>
+<label>Status<select name="status"><option value="">All statuses</option><option>draft</option><option>pending</option><option>approved</option><option>published</option><option>changes-requested</option><option>rejected</option><option>removed</option></select></label>
+<label>Created from<input name="from" type="date"></label><label>Created through<input name="to" type="date"></label>
+<label>Meal type<select name="mealType" id="filter-meal"><option value="">All meal types</option></select></label><label>Diet<select name="diet" id="filter-diet"><option value="">All diets</option></select></label><button class="secondary" type="submit">Apply filters</button>
+</form>
+<div id="recipe-list" aria-label="Recipe catalog"></div><div class="workspace-actions"><button type="button" id="previous-page" class="secondary">Previous page</button><button type="button" id="next-page" class="secondary">Next page</button></div>
+<section id="editor-panel" hidden aria-labelledby="editor-heading"><div class="editor-header"><h2 id="editor-heading" tabindex="-1">Create recipe</h2><button id="close-editor" class="text-button" type="button">Close editor</button></div><p id="revision-state"></p>
+<form id="recipe-form"><div id="recipe-fields"></div><div class="workspace-actions"><button id="save-recipe" class="primary" type="submit">Save draft</button><button id="preview-recipe" type="button" class="secondary">Preview recipe</button></div></form>
+<section id="public-preview" hidden aria-label="Recipe preview"></section>
+<section id="review-actions" hidden><h2>Review this saved revision</h2><p>Save edits first. Approval confirms an editorial decision, not kitchen testing or allergy safety.</p><label>Private decision notes<textarea id="decision-notes" maxlength="4000" rows="3"></textarea></label><div id="decision-buttons" class="workspace-actions"></div></section>
+<details id="revision-comparison"><summary>Compare saved candidate with published version</summary><div id="comparison"></div></details>
+<section aria-labelledby="history-heading"><h2 id="history-heading">Revision history</h2><p>Recent 20 revisions and the published version are shown below. Open any older version by its number.</p><form id="open-version-form" class="workspace-actions"><label>Version number<input id="open-version" type="number" min="1" step="1" required></label><button type="submit" class="secondary">Open saved version</button></form><div id="older-version" hidden></div><div id="revision-history"></div><button id="earlier-events" type="button" class="secondary" hidden>Load earlier decisions</button></section>
+</section></section></main><script type="module" src="/owner-recipes.js"></script></body></html>

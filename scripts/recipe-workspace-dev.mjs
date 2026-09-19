@@ -1,0 +1,17 @@
+import {openLocalRecipeDatabase} from './recipe-local-db.mjs';
+import {createPreviewServer} from './dev.mjs';
+import {createOwnerRecipesHandler} from '../api/owner-recipes.js';
+import {createOwnerHandler} from '../api/owner.js';
+import config from '../api/config.js';
+import profile from '../api/profile.js';
+import recipes from '../api/recipes.js';
+import {createReviewsHandler} from '../api/reviews.js';
+import {createLocalReviewStore} from './review-store.mjs';
+import {createLocalModerationHandler} from './review-moderation.mjs';
+if(process.env.VERCEL)throw Error('Local development only.');
+const {db,store}=await openLocalRecipeDatabase('.local-data/recipe-workspace');
+const reviewStore=createLocalReviewStore('.local-data/reviews.json');
+const authOptions={allowedOrigins:()=>['http://localhost:4192','http://127.0.0.1:4192']};
+const server=createPreviewServer({owner:createOwnerHandler(authOptions),config,profile,recipes,'owner-recipes':createOwnerRecipesHandler({store,authOptions,enabled:()=>true}),reviews:createReviewsHandler(reviewStore),'review-moderation':createLocalModerationHandler(reviewStore)});
+server.listen(4192,'127.0.0.1',()=>console.log('Local recipe workspace: http://localhost:4192/owner/recipes/ (development Clerk owner sign-in required)'));
+process.on('SIGINT',()=>server.close(async()=>{await db.close();process.exit(0);}));

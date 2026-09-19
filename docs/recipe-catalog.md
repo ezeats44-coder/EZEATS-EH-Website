@@ -1,5 +1,7 @@
 # Recipe catalog architecture
 
+**Owner workspace update:** The next phase now has a local owner-only workspace and transactional persistence. See [current workspace implementation and approval gates](owner-recipe-workspace.md). Sections below describing a schema-only, unmounted management boundary are historical foundation notes; the new `/api/owner-recipes` is feature-gated off unless explicitly configured. Neither migration has been applied to production, and public catalog integration remains disabled.
+
 **Current catalog:** 100 complete original recipe drafts; all still need owner review and kitchen testing. See [current authoring and safety notes](first-party-100.md) and [per-ID review report](recipe-review-report.md). Historical validation counts below describe earlier phases.
 
 Local development only. No deployment, provider account, paid subscription, production credential, tracking, or database migration is part of this phase.
