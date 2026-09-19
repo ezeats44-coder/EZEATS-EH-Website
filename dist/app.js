@@ -1,3 +1,4 @@
+import {renderGuestSliders, updateGuestSlider} from './guest-sliders.js';
 import {guestHeatOptions, guestAdventureQuestion, guestAdventureOptions, readGuestPicker, writeGuestPicker} from './guest-picker.js';
 import { accountReady, profileRequest } from './account-client.js';
 import { mealDefaults } from './profile-schema.js';
@@ -60,10 +61,11 @@ function options(key, items) {
 function showDetails() {
   updateProgress(2);
   flow.innerHTML = `<div class="step-heading"><span class="step-caption">JUST A FEW PRACTICAL THINGS</span><h2>Make it fit your day.</h2><p>Your time, your budget, your kind of good.</p></div>
-    <fieldset class="detail-field"><legend>How much cooking time do you have?</legend><div class="options" role="group" aria-label="Maximum cooking time">${options('time', [[15, '15 minutes', 'Quick & easy'], [30, '30 minutes', 'A little time'], [60, '60 minutes', 'No hurry']])}</div></fieldset>
+    ${!personalMode ? renderGuestSliders(state.prefs) : `    <fieldset class="detail-field"><legend>How much cooking time do you have?</legend><div class="options" role="group" aria-label="Maximum cooking time">${options('time', [[15, '15 minutes', 'Quick & easy'], [30, '30 minutes', 'A little time'], [60, '60 minutes', 'No hurry']])}</div></fieldset>
     <fieldset class="detail-field"><legend>What’s your budget per serving? <span>USD, at home</span></legend><div class="options" role="group" aria-label="Maximum cost per serving">${options('budget', [[5, 'Up to $5', 'Keep it simple'], [10, 'Up to $10', 'A little room'], [20, 'Up to $20', 'Treat myself']])}</div></fieldset>
     <fieldset class="detail-field"><legend>How much heat sounds good?</legend><div class="options" role="group" aria-label="Maximum spice level">${options('heat', personalMode ? [[0, 'Mild', 'Easy on the heat'], [1, 'A little kick', 'Some spice'], [2, 'Bring the heat', 'Spicy is welcome']] : guestHeatOptions)}</div></fieldset>
     <fieldset class="detail-field"><legend>${personalMode ? 'Feeling adventurous?' : guestAdventureQuestion}</legend><div class="options" role="group" aria-label="${personalMode ? 'Food familiarity preference' : guestAdventureQuestion}">${options('adventure', personalMode ? [['familiar', 'Keep it familiar', ''], ['adventurous', 'Try something new', ''], ['any', 'Either works', '']] : guestAdventureOptions)}</div></fieldset>
+`}
     <div class="flow-actions"><button class="back-button" data-action="mood">← Back</button><button class="primary" data-action="recommend">Find my meal <span aria-hidden="true">✳</span></button></div><p class="estimate-note">Time and cost are estimates for the ingredients shown.</p>`;
   focusHeading();
 }
@@ -94,7 +96,7 @@ function showResult() {
     focusHeading();
     return;
   }
-  const reasons = reasonsFor(item, state.prefs);
+  const reasons = reasonsFor(item, state.prefs).map(reason => !personalMode && reason === 'Mild, with no added chili heat' ? 'No added chili heat' : reason);
   if(personalMode&&item.historyReason)reasons.push(item.historyReason);
   const left = state.ranked.length - state.index - 1;
   flow.innerHTML = `<div class="result-heading"><span class="result-label ${state.accepted ? 'accepted' : ''}">${state.accepted ? '✓ DECISION MADE' : '✳ YOUR NEXT BITE, SORTED'}</span><span class="result-emoji" aria-hidden="true">${item.emoji}</span><p class="cuisine">${item.cuisine}</p><h2>${item.name}</h2><p>${state.accepted ? 'Good choice. The deciding is done — time for the delicious part.' : item.description}</p></div>
@@ -120,10 +122,19 @@ async function acceptMeal(id) {
   showResult();
   return currentResult();
 }
+flow.addEventListener('input', event => {
+ const key=event.target.dataset.guestSlider;
+ if (!key || personalMode) return;
+ pickerTouched=true;state.prefs[key]=updateGuestSlider(flow,key,event.target.value);saveGuestAnswers();
+});
 flow.addEventListener('click', event => {
   pickerTouched = true;
   const button = event.target.closest('button');
   if (!button || button.disabled) return;
+  if (button.dataset.sliderStop && !personalMode) {
+    const key=button.dataset.sliderStop;state.prefs[key]=updateGuestSlider(flow,key,button.dataset.position);
+    flow.querySelector(`[data-guest-slider="${key}"]`).focus({preventScroll:true});
+  }
   if (button.dataset.mood) { state.prefs.mood = button.dataset.mood; syncMood(); }
   if (button.dataset.diet) {
     const diet = button.dataset.diet;
