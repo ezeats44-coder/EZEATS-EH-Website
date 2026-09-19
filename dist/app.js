@@ -1,3 +1,4 @@
+import {guestHeatOptions, guestAdventureQuestion, guestAdventureOptions, readGuestPicker, writeGuestPicker} from './guest-picker.js';
 import { accountReady, profileRequest } from './account-client.js';
 import { mealDefaults } from './profile-schema.js';
 import { applyProfile } from './profile-matching.js';
@@ -8,6 +9,11 @@ import { defaults, allowed, validatePreferences, rankMeals, reasonsFor } from '.
 const flow = document.querySelector('#flow');
 const moodTemplate = flow.innerHTML;
 const state = { step: 1, prefs: { ...defaults, diets: [] }, ranked: [], index: 0, accepted: false };
+let guestStorage;
+try { guestStorage = window.sessionStorage; } catch {}
+const restoredGuest = readGuestPicker(guestStorage);
+if (restoredGuest) state.prefs = restoredGuest.prefs;
+function saveGuestAnswers() { if (!personalMode) writeGuestPicker(guestStorage, state.prefs, state.step); }
 const dialog = document.querySelector('#how-dialog');
 document.querySelector('#how-button').addEventListener('click', () => dialog.showModal());
 document.querySelectorAll('.close-dialog, .close-how').forEach(button => button.addEventListener('click', () => dialog.close()));
@@ -56,8 +62,8 @@ function showDetails() {
   flow.innerHTML = `<div class="step-heading"><span class="step-caption">JUST A FEW PRACTICAL THINGS</span><h2>Make it fit your day.</h2><p>Your time, your budget, your kind of good.</p></div>
     <fieldset class="detail-field"><legend>How much cooking time do you have?</legend><div class="options" role="group" aria-label="Maximum cooking time">${options('time', [[15, '15 minutes', 'Quick & easy'], [30, '30 minutes', 'A little time'], [60, '60 minutes', 'No hurry']])}</div></fieldset>
     <fieldset class="detail-field"><legend>What’s your budget per serving? <span>USD, at home</span></legend><div class="options" role="group" aria-label="Maximum cost per serving">${options('budget', [[5, 'Up to $5', 'Keep it simple'], [10, 'Up to $10', 'A little room'], [20, 'Up to $20', 'Treat myself']])}</div></fieldset>
-    <fieldset class="detail-field"><legend>How much heat sounds good?</legend><div class="options" role="group" aria-label="Maximum spice level">${options('heat', [[0, 'Mild', 'Easy on the heat'], [1, 'A little kick', 'Some spice'], [2, 'Bring the heat', 'Spicy is welcome']])}</div></fieldset>
-    <fieldset class="detail-field"><legend>Feeling adventurous?</legend><div class="options" role="group" aria-label="Food familiarity preference">${options('adventure', [['familiar', 'Keep it familiar', ''], ['adventurous', 'Try something new', ''], ['any', 'Either works', '']])}</div></fieldset>
+    <fieldset class="detail-field"><legend>How much heat sounds good?</legend><div class="options" role="group" aria-label="Maximum spice level">${options('heat', personalMode ? [[0, 'Mild', 'Easy on the heat'], [1, 'A little kick', 'Some spice'], [2, 'Bring the heat', 'Spicy is welcome']] : guestHeatOptions)}</div></fieldset>
+    <fieldset class="detail-field"><legend>${personalMode ? 'Feeling adventurous?' : guestAdventureQuestion}</legend><div class="options" role="group" aria-label="${personalMode ? 'Food familiarity preference' : guestAdventureQuestion}">${options('adventure', personalMode ? [['familiar', 'Keep it familiar', ''], ['adventurous', 'Try something new', ''], ['any', 'Either works', '']] : guestAdventureOptions)}</div></fieldset>
     <div class="flow-actions"><button class="back-button" data-action="mood">← Back</button><button class="primary" data-action="recommend">Find my meal <span aria-hidden="true">✳</span></button></div><p class="estimate-note">Time and cost are estimates for the ingredients shown.</p>`;
   focusHeading();
 }
@@ -69,6 +75,7 @@ function showPersonalPicker() {
 function recommend() {
   state.ranked = applyProfile(rankMeals(state.prefs), savedProfile);
   if(personalMode)state.ranked=rankWithHistory(state.ranked,mealHistory);
+  saveGuestAnswers();
   choiceId=crypto.randomUUID();
   state.index = 0;
   state.accepted = false;
@@ -91,7 +98,7 @@ function showResult() {
   if(personalMode&&item.historyReason)reasons.push(item.historyReason);
   const left = state.ranked.length - state.index - 1;
   flow.innerHTML = `<div class="result-heading"><span class="result-label ${state.accepted ? 'accepted' : ''}">${state.accepted ? '✓ DECISION MADE' : '✳ YOUR NEXT BITE, SORTED'}</span><span class="result-emoji" aria-hidden="true">${item.emoji}</span><p class="cuisine">${item.cuisine}</p><h2>${item.name}</h2><p>${state.accepted ? 'Good choice. The deciding is done — time for the delicious part.' : item.description}</p></div>
-    <div class="meal-meta"><span><strong>${item.minutes} min</strong> estimated prep + cook</span><span><strong>~$${item.cost}</strong> per serving</span><span><strong>${['Mild', 'A little kick', 'Spicy'][item.heat]}</strong> spice level</span></div>
+    <div class="meal-meta"><span><strong>${item.minutes} min</strong> estimated prep + cook</span><span><strong>~$${item.cost}</strong> per serving</span><span><strong>${(personalMode ? ['Mild', 'A little kick', 'Spicy'] : ['No heat', 'Medium', 'Hot'])[item.heat]}</strong> spice level</span></div>
     <div class="match-reasons"><h3>Why this one works</h3><ul>${reasons.map(reason => `<li><span aria-hidden="true">✓</span>${reason}</li>`).join('')}</ul></div>
     <details class="ingredients" ${state.accepted ? 'open' : ''}><summary>What goes in it <span aria-hidden="true">+</span></summary><div class="ingredient-tags">${item.ingredients.map(ingredient => `<span>${ingredient}</span>`).join('')}</div><p class="small-note">Dietary labels apply to these ingredients. Check packaged products for your dietary needs. Ingredient screening cannot verify brands, substitutions, or cross-contact; a match is not a guarantee that a meal is allergen-free.</p></details>
     <div class="result-actions">${state.accepted ? `<a class="primary" href="/recipe/?id=ezeats:${encodeURIComponent(item.id)}">View recipe details</a><button class="primary" data-action="restart">Find another meal <span aria-hidden="true">→</span></button>` : `<button class="primary" data-action="accept">That’s the one <span aria-hidden="true">✓</span></button><button class="secondary" data-action="another" ${left === 0 ? 'disabled' : ''}>Another idea <span aria-hidden="true">↻</span></button>`}</div>
@@ -145,7 +152,9 @@ flow.addEventListener('click', event => {
   if (action === 'another' && state.index + 1 < state.ranked.length) { state.index++; choiceId=crypto.randomUUID();state.accepted = false; showResult(); }
   if (action === 'accept') acceptMeal(state.ranked[state.index].id);
   if (action === 'restart') { state.ranked = []; state.accepted = false; state.index = 0; if(personalMode)showPersonalPicker();else showMood(); }
+  saveGuestAnswers();
 });
+if (restoredGuest?.step === 2) showDetails(); else syncMood();
 // Feature-detect the proposed WebMCP API; normal browsers use the interface above.
 const context = document.modelContext;
 if (context?.registerTool) {
