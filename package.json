@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/*.test.js",
+    "test": "node scripts/test.mjs",
     "check": "node scripts/recipe-catalog.mjs --check && node scripts/public-metadata.mjs --check && node scripts/check.mjs",
     "dev": "node scripts/dev.mjs",
     "catalog:generate": "node scripts/recipe-catalog.mjs",
