@@ -43,7 +43,7 @@ test('Unauthenticated profile requests cannot read, change, or delete data',asyn
 });
 test('Age confirmation is required server-side and cannot be asserted through profile data',async()=>{
  const privateMetadata={},writes=[];
- const h=createProfileHandler(()=>({authenticateRequest:async()=>({toAuth:()=>({userId:'verified-user'})}),users:{getUser:async()=>({privateMetadata}),updateUserMetadata:async(id,patch)=>{writes.push(id);Object.assign(privateMetadata,patch.privateMetadata);}}}));
+ const h=createProfileHandler(()=>({authenticateRequest:async()=>({toAuth:()=>({userId:'verified-user'})}),users:{getUser:async()=>({privateMetadata}),updateUserMetadata:async(id,patch)=>{writes.push(id);Object.assign(privateMetadata,patch.privateMetadata);}}}),{guard:(_user,_method,work)=>work()});
  const call=async(method,body)=>{const r={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};await h({method,headers:{authorization:'Bearer fixture'},body},r);return r;};
  assert.equal((await call('GET')).body.code,'AGE_REQUIRED');
  assert.equal((await call('PUT',{profile:{name:'Test'},completed:true})).code,403);

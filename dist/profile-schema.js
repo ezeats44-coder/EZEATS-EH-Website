@@ -1,3 +1,4 @@
+import {allergyOptions} from './allergy-screening.js';
 // Shared by the settings form and the authenticated API. No personal answers in tokens.
 export const sections = [
  {title:'Your food, your way',intro:'Start with what tastes good. Every question is optional.',fields:[
@@ -9,7 +10,7 @@ export const sections = [
   {key:'foodLikes',label:'What always sounds good?',multiple:true,bubbles:true,options:['Pasta','Pizza','Tacos','Burgers','Rice bowls','Noodles','Salads','Soups & stews','Sandwiches & wraps','Seafood','Chicken','Beef','Tofu','Beans & lentils','Eggs','Potatoes'],help:'Tap your favorites. Pick as many or as few as you like.'},
   {key:'foodDislikes',label:'What would you rather skip?',multiple:true,bubbles:true,options:['Mushrooms','Avocado','Olives','Onions','Tomatoes','Cilantro','Eggplant','Broccoli','Peppers','Cheese','Eggs','Fish','Shellfish','Tofu','Beans','Lentils'],help:'These ingredients will be excluded when listed in a meal. For allergies, use the separate allergy question.'},
   {key:'avoid',label:'Anything else you would rather skip?',text:true,max:200,help:'Other dislikes, separated by commas (for example: celery, cabbage). Add allergies in the next step.'},
-  {key:'allergies',label:'Do you have any food allergies?',multiple:true,options:['Milk','Eggs','Fish','Shellfish','Peanuts','Tree nuts','Wheat','Soy','Sesame'],help:'Select any that apply. We screen listed ingredients, but cannot verify brands or cross-contact. Always check ingredients and preparation.'},
+  {key:'allergies',label:'Do you have any food allergies?',multiple:true,options:allergyOptions,help:'Select any that apply. We screen listed ingredients, but cannot verify brands or cross-contact. Always check ingredients and preparation. Mustard, sulphites and triticale currently pause suggestions because we cannot reliably screen them. Shellfish includes crustaceans and molluscs.'},
   {key:'otherAllergies',label:'Other allergies or allergy details',text:true,max:300,help:'If you enter an allergy we cannot screen, we will pause meal suggestions instead of guessing.'},
   {key:'cuisines',label:'Where do your cravings take you?',multiple:true,bubbles:true,options:['Italian','Mexican','Mediterranean','Indian','Japanese','Thai','Korean','American','Chinese','Vietnamese','Greek','Middle Eastern','Caribbean','French','Spanish','Ethiopian','Brazilian','Filipino','Cajun','Turkish'],help:'Tap the cuisines you love. Some are saved for future menu additions as our meal collection grows.'},
   {key:'adventure',label:'Do you like trying something new?',options:['Keep it familiar','Try something new','Either works']}

@@ -1,6 +1,6 @@
-# Invitation-only contributor beta — local implementation
+# Invitation-only contributor beta
 
-This phase is **not deployed**. It starts from production source `e7d34d11167a22cdce02bbce313ee267b79a5928` (Owner Recipe Manager deployment `dpl_B5aKMToeeLEWieqiY8ox3QSRqXut`, verified before implementation). Worktree `/tmp/ezeats-contributor-beta`, branch `codex/contributor-beta`. The older dirty checkout and nearby MVP are excluded. The historical owner-workspace document describes its earlier phase; this document supersedes its statement that invitation routes do not exist.
+Production source `d1e4dec507848126d026b653dc659e9032b5dcca` includes this beta and its privacy notice. The September 29 audit verified both workspace and contributor migrations applied, with no active production invitations. Public submissions, image uploads and external providers remain disabled. Check current deployment/environment state before any release; the historical local implementation and preview notes below are not current release instructions.
 
 ## Routes and authorization
 

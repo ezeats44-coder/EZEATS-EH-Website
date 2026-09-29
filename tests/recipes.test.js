@@ -55,11 +55,11 @@ test('API validates queries, denies hosted development provider, enforces limits
  assert.equal((await call(createRecipesHandler(),'/api/recipes',{},'POST')).statusCode,405);
  for(const env of [{},{RECIPE_THEMEALDB_DEV:'1',VERCEL:'1'},{RECIPE_THEMEALDB_DEV:'1',NODE_ENV:'production'}])assert.equal((await call(createRecipesHandler({env}),'/api/recipes?provider=themealdb&q=rice')).statusCode,403);
  assert.equal((await call(createRecipesHandler({env:{RECIPE_THEMEALDB_DEV:'1'}}),'/api/recipes?provider=themealdb&q=rice',{host:'public.example'})).statusCode,403);
- const h=createRecipesHandler({limiter:()=>false});assert.equal((await call(h,'/api/recipes')).statusCode,429);
+ const h=createRecipesHandler({env:{RECIPE_THEMEALDB_DEV:'1'},limiter:()=>false});assert.equal((await call(h,'/api/recipes?provider=themealdb&q=rice')).statusCode,429);assert.equal((await call(h,'/api/recipes')).statusCode,200);
  const bad={...localProvider,search:async()=>{throw new Error('secret key');}};const fail=await call(createRecipesHandler({providers:{ezeats:bad}}),'/api/recipes');assert.equal(fail.statusCode,503);assert.ok(!JSON.stringify(fail.body).includes('secret'));
  let now=0;const limit=createRecipeLimiter({max:1,now:()=>now});assert.equal(limit(),true);assert.equal(limit(),false);now=60000;assert.equal(limit(),true);
 });
-test('Guest HTTP recipe route serves normalized details with no-store and catches duplicate query keys',async()=>{
+test('Guest HTTP recipe route serves public owned details with bounded CDN caching and catches duplicate query keys',async()=>{
  const server=createPreviewServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const base=`http://127.0.0.1:${server.address().port}`;
- try{let r=await fetch(base+'/api/recipes?id=ezeats:chickpea-bowl');assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/no-store/);assert.equal((await r.json()).recipe.id,'ezeats:chickpea-bowl');r=await fetch(base+'/api/recipes?q=a&q=b');assert.equal(r.status,400);assert.equal((await fetch(base+'/recipe/?id=ezeats:chickpea-bowl')).status,200);}finally{await new Promise(r=>server.close(r));}
+ try{let r=await fetch(base+'/api/recipes?id=ezeats:chickpea-bowl');assert.equal(r.status,200);assert.match(r.headers.get('cache-control'),/s-maxage=60/);assert.equal((await r.json()).recipe.id,'ezeats:chickpea-bowl');r=await fetch(base+'/api/recipes?q=a&q=b');assert.equal(r.status,400);assert.equal((await fetch(base+'/recipe/?id=ezeats:chickpea-bowl')).status,200);}finally{await new Promise(r=>server.close(r));}
 });

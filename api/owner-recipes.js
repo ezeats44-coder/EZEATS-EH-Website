@@ -1,3 +1,4 @@
+import {observeEndpoint} from '../server/diagnostics.js';
 import {createContributorStore} from '../server/recipes/contributors/store.js';
 import {recipeDatabase} from '../server/recipes/workspace/database.js';
 import {ownerIdentity} from '../server/owner-access.js';
@@ -39,4 +40,4 @@ export function createOwnerRecipesHandler({store,authOptions,betaStore,betaEnabl
   return res.status(b.action==='create'?201:200).json({record:betaEnabled()?await (betaStore||createContributorStore(recipeDatabase())).ownerMutate(b,actor):await db.mutate(b,actor)});
  }catch(e){const status=e instanceof WorkspaceError?e.status:503;if(status===429)res.setHeader('Retry-After','60');return res.status(status).json({error:e instanceof WorkspaceError?e.message:'Recipe storage is unavailable. Reload to check the last saved version before retrying.'});}
 };}
-export default createOwnerRecipesHandler();
+export default observeEndpoint('owner-recipes',createOwnerRecipesHandler());

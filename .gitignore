@@ -2,7 +2,7 @@
 .vercel/
 .sites-runtime/
 .openai/
-node_modules/
+node_modules
 .env
 .env.*
 !.env.example
@@ -11,3 +11,4 @@ AGENTS.md
 .env*
 
 .local-data/
+.vercel

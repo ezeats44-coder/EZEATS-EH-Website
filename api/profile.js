@@ -1,7 +1,9 @@
+import {observeEndpoint} from '../server/diagnostics.js';
+import {profileOperation} from '../server/profile-operations.js';
 import {createClerkClient} from '@clerk/backend';
 import {validateProfile,fields,normalizeStoredProfile} from '../dist/profile-schema.js';
 import {recordChoice} from '../dist/meal-history.js';
-export function createProfileHandler(makeClient=createClerkClient) {return async function handler(req,res) {
+export function createProfileHandler(makeClient=createClerkClient,{guard=profileOperation}={}) {return async function handler(req,res) {
  res.setHeader('Cache-Control','private, no-store');
  if(!['GET','PUT','POST','PATCH','DELETE'].includes(req.method)){res.setHeader('Allow','GET, PUT, POST, PATCH, DELETE');return res.status(405).json({error:'Method not allowed.'});}
  const origins=['https://ezeats.vercel.app','https://ezeats-eh.com','https://www.ezeats-eh.com',...(process.env.VERCEL_URL?[`https://${process.env.VERCEL_URL}`]:[]),...(process.env.VERCEL_ENV!=='production'?['http://localhost:4175']:[])];
@@ -18,6 +20,7 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
   const session=await clerk.authenticateRequest(request,{authorizedParties:origins});
   const {userId}=session.toAuth()||{};
   if(!userId)return res.status(401).json({error:'Your session expired. Please sign in again.'});
+  return await guard(userId,req.method,async()=>{
   if(req.method==='PATCH'){
    let body=req.body;try{if(typeof body==='string')body=JSON.parse(body);}catch{return res.status(400).json({error:'Please confirm your age eligibility.'});}
    if(!body||body.ageConfirmed!==true||Object.keys(body).length!==1)return res.status(400).json({error:'Please confirm that you are 13 or older.'});
@@ -53,6 +56,7 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
   } catch {return res.status(400).json({error:'Please check your answers and try again.'});}
   await clerk.users.updateUserMetadata(userId,{privateMetadata:{ezeatsProfile:{genderDescription:null,...Object.fromEntries(fields.map(f=>[f.key,null])),...body.profile},ezeatsOnboarded:body.completed}});
   return res.status(200).json(body);
- } catch {return res.status(503).json({error:'Your preferences could not be accessed. Please try again.'});}
+  });
+ } catch(error) {if(error.status===429){res.setHeader('Retry-After','60');return res.status(429).json({error:'Too many profile requests. Please try again in a minute.'});}return res.status(503).json({error:'Your preferences could not be accessed. Please try again.'});}
 };}
-export default createProfileHandler();
+export default observeEndpoint('profile',createProfileHandler());

@@ -1,3 +1,4 @@
+import {observeEndpoint} from '../server/diagnostics.js';
 import {productionRecipeStore} from '../server/recipes/workspace/database.js';
 import {createRecipeLimiter} from './recipes.js';
 export function createCommunityHandler({store,enabled=()=>process.env.RECIPE_CONTRIBUTOR_BETA==='true'&&process.env.RECIPE_COMMUNITY_CATALOG==='true',limiter=createRecipeLimiter()}={}){return async(req,res)=>{
@@ -8,4 +9,4 @@ export function createCommunityHandler({store,enabled=()=>process.env.RECIPE_CON
  if(!limiter())return res.status(429).json({error:'Please try again in a minute.'});
  try{const db=store||productionRecipeStore();if(!db)throw Error();if(id){const recipe=await db.published(id);return recipe?res.status(200).json({recipe}):res.status(404).json({error:'Recipe not found.'});}const recipes=(await db.publishedSearch({q,limit:20,origin:'user-submitted'})).filter(r=>r.id.startsWith('ezeats-user:')).slice(0,20);res.status(200).json({recipes});}catch{res.status(503).json({error:'Community recipes are temporarily unavailable.'});}
  };}
-export default createCommunityHandler();
+export default observeEndpoint('community-recipes',createCommunityHandler());

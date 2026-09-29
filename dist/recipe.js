@@ -2,6 +2,7 @@ const title=document.querySelector('#recipe-title'),content=document.querySelect
 const el=(tag,text)=>{const n=document.createElement(tag);n.textContent=text;return n;};
 function sourceLink(label,url){if(!url)return el('span',`${label}: unavailable`);try{if(new URL(url).protocol!=='https:')throw new Error();}catch{return el('span',`${label}: unavailable`);}const a=el('a',label);a.href=url;a.rel='noopener noreferrer';return a;}
 function render(r){
+ if(r.id.startsWith('ezeats:')){let canonical=document.querySelector('link[rel=canonical]');if(!canonical){canonical=document.createElement('link');canonical.rel='canonical';document.head.append(canonical);}canonical.href='https://www.ezeats-eh.com/recipes/'+r.id.slice(7)+'/';}
  title.textContent=r.title;document.title=`${r.title} — EZEATS`;content.replaceChildren();
  if(r.description)content.append(el('p',r.description));
  if(r.editorial)content.append(el('p',`${r.cuisine} · ${r.mealTypes.join(', ')} · ${r.difficulty}. Measurements: 1 cup = about 240 mL, 1 tablespoon = 15 mL, 1 teaspoon = 5 mL; weights in ingredient notes. Oven temperatures are conventional.`));

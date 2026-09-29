@@ -12,7 +12,7 @@ test('Choice history validates catalog IDs, deduplicates retries and stays bound
 });
 test('History is tied to authenticated identity, gated by age, and clears independently',async()=>{
  const metadata={ezeatsProfile:{diet:'Vegan'}};
- const handler=createProfileHandler(()=>({authenticateRequest:async()=>({toAuth:()=>({userId:'session-user'})}),users:{getUser:async()=>({privateMetadata:metadata}),updateUserMetadata:async(id,patch)=>{assert.equal(id,'session-user');Object.assign(metadata,patch.privateMetadata);}}}));
+ const handler=createProfileHandler(()=>({authenticateRequest:async()=>({toAuth:()=>({userId:'session-user'})}),users:{getUser:async()=>({privateMetadata:metadata}),updateUserMetadata:async(id,patch)=>{assert.equal(id,'session-user');Object.assign(metadata,patch.privateMetadata);}}}),{guard:(_user,_method,work)=>work()});
  const call=async(method,body,query)=>{const res={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};await handler({method,body,query,headers:{authorization:'Bearer fixture'}},res);return res;};
  const choice={mealId:'black-bean-tacos',choiceId:'test-choice-1'};
  assert.equal((await call('POST',choice)).code,403);

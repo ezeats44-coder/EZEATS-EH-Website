@@ -44,6 +44,12 @@ TheMealDB stays opt-in localhost development only. Public recipe submissions, im
 
 See [recipe architecture](docs/recipe-catalog.md), [100-recipe authoring and safety notes](docs/first-party-100.md), and [per-recipe review report](docs/recipe-review-report.md). The [previous preview audit](docs/recipe-preview-audit.md) is historical evidence for the earlier 28-meal foundation, not the current catalog's completion status.
 
-## Invitation-only contributor beta (local, not deployed)
+## Invitation-only contributor beta
 
-See [implementation and release gates](docs/contributor-beta.md), [unpublished privacy draft](docs/contributor-privacy-draft.md), and [verification report](docs/contributor-beta-verification.md). `pnpm verify:contributors:browser` starts a disposable local database and simulated accounts on port 4195. Hosted contributor access and community publication are off by default; no production changes are authorized by these instructions.
+See [implementation and release gates](docs/contributor-beta.md), [unpublished privacy draft](docs/contributor-privacy-draft.md), and [verification report](docs/contributor-beta-verification.md). `pnpm verify:contributors:browser` starts a disposable local database and simulated accounts on port 4195. The beta is deployed with server-side invitation gating. Public submission, uploads and third-party imports remain disabled. Historical preview notes do not authorize production changes. See docs/audit-remediation.md for the current release work.
+
+## Release validation and operations
+
+Vercel builds run `pnpm test && pnpm check`. The same checks run in GitHub Actions with pinned pnpm 11.19.0 / Node 24. `pnpm metadata:generate` updates static recipe detail pages and the sitemap from the unchanged first-party catalog. Public source URLs are https://www.ezeats-eh.com/.
+
+Profile requests now require the existing `RECIPE_DATABASE_URL` connection and contributor migration, including SELECT/INSERT/UPDATE privileges on `recipe_contributor_limits`. This provides shared rate limits and transaction-scoped locks for Clerk metadata writes; no profile answers are copied into Neon. Authenticated local testing must use an isolated database; never use production credentials.

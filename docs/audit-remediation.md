@@ -12,16 +12,29 @@ Base: production d1e4dec507848126d026b653dc659e9032b5dcca. Isolated branch codex
 
 Validation: 180 tests pass; 100 recipe mappings pass; 75 JS files and local HTML links/assets pass; git diff --check passes. Browser and hosted release verification remain required. Local fallback pnpm was 11.25.0, so exact pinned-version reproduction is not claimed.
 
-## Immediate external blocker
+## Domain recovered
 
-Registry RDAP confirms clientHold on ezeats-eh.com, expires 2027-09-11, Squarespace nameservers. DNS returns NXDOMAIN for apex, www and Clerk host. Squarespace UI says Active without a visible suspension notice. Hold date is 15 days after registration; contact-email verification is a likely cause, not yet proven. User was asked to inspect the registrar verification email. No DNS or registrar settings changed.
+The owner completed Squarespace contact verification. Independent DNS checks now resolve apex, www and Clerk; the registrar hold is gone. Production sign-in controls and recipe APIs load. No domain/DNS code workaround was introduced.
 
 ## Still outstanding
 
-- Remove registrar hold and verify fresh production sign-in, owner/contributor authorization, all aliases and Clerk DNS.
+- Complete staged and post-release authenticated verification.
 - Owner-controlled MFA setup on hosting/registrar accounts.
 - Shared profile/rate-limit protections and concurrency-safe history design; avoid claiming process-local locks solve distributed concurrency.
 - Redacted diagnostic logging, retention/deletion/recovery runbooks and verification. No destructive cleanup is authorized by this document.
 - Recipe owner review and kitchen testing require actual human/physical review; no recipe has been relabeled tested.
 - Canada allergen/currency coverage, SEO, performance and broader accessibility follow-up from the audit.
 - Deploy only a reviewed isolated commit after browser checks; do not include nearby MVP, contributor experiments or secret values.
+
+## Additional candidate fixes
+
+- Shared profile-api counters and transaction-scoped advisory locks using the existing recipe database and contributor schema. No migration. Real SQL tests verify serialized concurrent saves and quota handling.
+- Operational logs contain only static route, request ID, method, status and duration; no private request bodies, IDs or errors.
+- Owned catalog reads no longer share a 60-request process-wide limiter; their public responses can use a 60-second CDN cache. Contributor responses remain private/no-store and retain overload protection.
+- Mustard, sulphites and triticale selections pause recommendations until adequate ingredient evidence is available. No allergy safety guarantees.
+- Static recipe pages, canonical metadata, sitemap and robots generated from the unchanged 100 records, with truthful Recipe JSON-LD and no invented photographs/ratings/nutrition.
+- Keyboard skip links, textarea focus and global reduced-motion support.
+- Runbook and contributor deployment documentation updated. No destructive retention purge was performed.
+- Exact pnpm 11.19.0 frozen install and full suite now reproduced.
+
+The first phone-width measurement occurred before CSS finished loading; after load the page width matches the 390-pixel viewport without horizontal overflow. No persistent overflow defect was found.

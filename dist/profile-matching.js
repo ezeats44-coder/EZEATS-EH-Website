@@ -1,3 +1,4 @@
+import {hasUnsupportedAllergy} from './allergy-screening.js';
 // Conservative ingredient screening for the curated recipes, not an allergen-free guarantee.
 import {foodPreferenceMatch} from './food-preferences.js';
 import {meals as catalogMeals} from './meal-catalog.js';
@@ -5,7 +6,7 @@ export const allergens=Object.fromEntries(catalogMeals.map(m=>[m.id,m.knownAller
 // Reviewed ingredient specifications, not tested or allergen-safe claims. Unknown IDs fail closed.
 const reviewed=new Set(catalogMeals.map(m=>m.id));
 export function applyProfile(meals,profile={}) {
- if(profile.otherAllergies?.trim())return [];
+ if(profile.otherAllergies?.trim()||hasUnsupportedAllergy(profile.allergies||[]))return [];
  const avoid=(profile.avoid||'').toLowerCase().split(',').map(s=>s.trim()).filter(Boolean);
  return meals.filter(m=>{
   if(foodPreferenceMatch(m,profile).excluded)return false;

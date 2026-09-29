@@ -1,3 +1,4 @@
+import {observeEndpoint} from '../server/diagnostics.js';
 import {betaIdentity,eligible} from '../server/recipes/contributors/auth.js';
 import {createContributorStore} from '../server/recipes/contributors/store.js';
 import {recipeDatabase} from '../server/recipes/workspace/database.js';
@@ -13,4 +14,4 @@ export function createContributorHandler({store,authOptions,enabled=()=>process.
  if(!['create','save'].includes(b.action)&&b.content!==undefined)throw new WorkspaceError('Unexpected content.');
  res.status(200).json({record:await db.mutate(b,a)});
  });}
-export default createContributorHandler();
+export default observeEndpoint('contributor-recipes',createContributorHandler());

@@ -1,3 +1,4 @@
+import {hasUnsupportedAllergy} from '../../dist/allergy-screening.js';
 // JSON-compatible Recipe v1. null means unknown; [] means no supplied entries.
 export const safeUrl=value=>{try{const u=new URL(value);return u.protocol==='https:'&&!u.username&&!u.password?u.href:null;}catch{return null;}};
 export function validateRecipe(r){
@@ -19,6 +20,7 @@ export function uniqueRecipes(rows){const seen=new Set();return rows.map(validat
 export function matchesRestrictions(r,{diets=[],allergens=[],exclude=[]}={}){
  // Unknown evidence cannot satisfy a hard restriction. No fallbacks relax it.
  if(diets.length&&(!r.suitability.dietEvidence||!diets.every(d=>r.dietTags.includes(d))))return false;
+ if(hasUnsupportedAllergy(allergens))return false;
  if(allergens.length&&(!r.suitability.allergensComplete||allergens.some(a=>r.knownAllergens.includes(a))))return false;
  if(exclude.length&&(!r.suitability.ingredientsComplete||exclude.some(e=>JSON.stringify([r.title,r.ingredients]).toLowerCase().includes(e.toLowerCase()))))return false;
  return true;

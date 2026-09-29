@@ -1,3 +1,4 @@
+import {observeEndpoint} from '../server/diagnostics.js';
 import {createClerkClient} from '@clerk/backend';
 import {createDatabaseReviewStore} from '../server/review-store.js';
 import {ownerIdentity} from '../server/owner-access.js';
@@ -18,4 +19,4 @@ export function createModerationHandler({store,makeClient=createClerkClient,owne
   return res.status(200).json({ok:true});
  }catch{return res.status(503).json({error:'The review queue is unavailable. Please retry.'});}
 };}
-export default createModerationHandler();
+export default observeEndpoint('review-moderation',createModerationHandler());

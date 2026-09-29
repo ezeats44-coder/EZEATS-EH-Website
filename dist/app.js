@@ -1,3 +1,4 @@
+import {hasUnsupportedAllergy} from './allergy-screening.js';
 import {renderGuestSliders, updateGuestSlider} from './guest-sliders.js';
 import {guestHeatOptions, guestAdventureQuestion, guestAdventureOptions, readGuestPicker, writeGuestPicker} from './guest-picker.js';
 import { accountReady, profileRequest } from './account-client.js';
@@ -205,7 +206,7 @@ if (context?.registerTool) {
   note.replaceChildren();
   const label=document.createElement('span');
   label.textContent=data.completed?'Your preferences are in. Let’s pick something good.':'One tap to start. Add your usuals in Settings for a closer match.';
-  if(savedProfile.otherAllergies)label.textContent='Your profile includes additional allergy details we cannot screen. Meal suggestions are paused; review your Settings.';
+  if(savedProfile.otherAllergies||hasUnsupportedAllergy(savedProfile.allergies||[]))label.textContent='Your profile includes additional allergy details we cannot screen. Meal suggestions are paused; review your Settings.';
   const link=document.createElement('a');link.href='/settings/';link.textContent=data.completed?'Edit preferences →':'Personalize my experience →';note.append(label,link);
   if(!pickerTouched){state.prefs={...state.prefs,...mealDefaults(savedProfile)};showPersonalPicker();document.querySelector('.page-intro>p').textContent='One little tap. One delicious answer.';}
   else if(state.step===3){state.ranked=applyProfile(state.ranked,savedProfile);state.index=0;state.accepted=false;showResult();}

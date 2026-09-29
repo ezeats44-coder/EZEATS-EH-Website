@@ -1,3 +1,4 @@
+import {observeEndpoint} from '../server/diagnostics.js';
 import {betaIdentity,resolveAccount} from '../server/recipes/contributors/auth.js';
 import {createContributorStore} from '../server/recipes/contributors/store.js';
 import {recipeDatabase} from '../server/recipes/workspace/database.js';
@@ -13,4 +14,4 @@ export function createInvitationsHandler({store,authOptions,enabled=()=>process.
  if(b.action==='account-deleted'){try{await a.client.users.getUser(id);}catch(e){if(e.status===404)return res.status(200).json(await db.accountDeleted(id,a));throw e;}throw new WorkspaceError('Account still exists. Use revoke instead.');}
  res.status(200).json(await db.revoke(id,a));
  });}
-export default createInvitationsHandler();
+export default observeEndpoint('recipe-contributors',createInvitationsHandler());
