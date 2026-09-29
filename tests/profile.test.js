@@ -77,3 +77,16 @@ test('Existing profiles remain usable after removing gender write-ins',()=>{
  assert.deepEqual(validateProfile(normalizeStoredProfile({gender:'Self-described',genderDescription:'old text',spice:'Mild'})),{spice:'Mild'});
  assert.throws(()=>validateProfile({genderDescription:'new text'}));
 });
+
+test('Profile rejects oversized actual payloads even without a trustworthy Content-Length',async()=>{
+ let called=false;
+ const h=createProfileHandler(()=>{called=true;throw new Error('Must not contact Clerk');});
+ for(const body of [{profile:{name:'é'.repeat(7000)}},JSON.stringify({profile:{name:'x'.repeat(13000)}})]){
+  for(const headers of [{},{'content-length':'1'}]){
+   const r={setHeader(){},status(n){this.code=n;return this;},json(b){this.body=b;return this;}};
+   await h({method:'PUT',headers:{authorization:'Bearer fixture',...headers},body},r);
+   assert.equal(r.code,413);
+  }
+ }
+ assert.equal(called,false);
+});

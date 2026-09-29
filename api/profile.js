@@ -6,6 +6,11 @@ export function createProfileHandler(makeClient=createClerkClient) {return async
  if(!['GET','PUT','POST','PATCH','DELETE'].includes(req.method)){res.setHeader('Allow','GET, PUT, POST, PATCH, DELETE');return res.status(405).json({error:'Method not allowed.'});}
  const origins=['https://ezeats.vercel.app','https://ezeats-eh.com','https://www.ezeats-eh.com',...(process.env.VERCEL_URL?[`https://${process.env.VERCEL_URL}`]:[]),...(process.env.VERCEL_ENV!=='production'?['http://localhost:4175']:[])];
  if(req.headers.origin && !origins.includes(req.headers.origin)) return res.status(403).json({error:'Origin not allowed.'});
+ // Check decoded payload bytes too: Content-Length may be absent or inaccurate.
+ if(req.body!==undefined){
+  let bytes;try{bytes=Buffer.byteLength(typeof req.body==='string'?req.body:JSON.stringify(req.body),'utf8');}catch{return res.status(400).json({error:'Invalid profile request.'});}
+  if(bytes>12000)return res.status(413).json({error:'Profile is too large.'});
+ }
  if(!req.headers.authorization?.startsWith('Bearer '))return res.status(401).json({error:'Sign in to access your preferences.'});
  try {
   const clerk=makeClient({secretKey:process.env.CLERK_SECRET_KEY,publishableKey:process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY});

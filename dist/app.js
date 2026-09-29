@@ -194,9 +194,11 @@ if (context?.registerTool) {
 // Guests keep the original picker; account failure never blocks guest access.
 (async () => {
  const note=document.querySelector('#personalization-note');
+ let signedIn=false;
  try {
   const clerk=await accountReady();
   if(!clerk.user)return;
+  signedIn=true;
   document.querySelector('.account-link').textContent='Account';
   document.querySelector('.account-link').href='/settings/';
   const data=await profileRequest();savedProfile=data.profile;mealHistory=data.history||[];personalMode=true;
@@ -207,5 +209,5 @@ if (context?.registerTool) {
   const link=document.createElement('a');link.href='/settings/';link.textContent=data.completed?'Edit preferences →':'Personalize my experience →';note.append(label,link);
   if(!pickerTouched){state.prefs={...state.prefs,...mealDefaults(savedProfile)};showPersonalPicker();document.querySelector('.page-intro>p').textContent='One little tap. One delicious answer.';}
   else if(state.step===3){state.ranked=applyProfile(state.ranked,savedProfile);state.index=0;state.accepted=false;showResult();}
- }catch(error) { const label=note.querySelector('span');if(label)label.textContent=error.code==='AGE_REQUIRED'?'Finish your one-time age confirmation in Settings to unlock your personal picker.':'Saved preferences could not be loaded. This picker is using guest choices; check your dietary needs before choosing.'; }
+ }catch(error) { const label=note.querySelector('span');if(label)label.textContent=error.code==='AGE_REQUIRED'?'Finish your one-time age confirmation in Settings to unlock your personal picker.':signedIn?'Saved preferences could not be loaded. This picker is using guest choices; check your dietary needs before choosing.':'Sign-in is temporarily unavailable. You can still choose a meal as a guest; review the ingredients for your dietary needs.'; }
 })();
