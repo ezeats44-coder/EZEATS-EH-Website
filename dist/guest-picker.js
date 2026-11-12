@@ -1,4 +1,8 @@
 import {validatePreferences} from './meals.js';
+export const guestEmptyMessage = 'No meal in our current catalog fits these choices. Try adjusting your time, budget, heat, or dietary selections. Your answers are still here; no restrictions have been changed.';
+export function guestReasons(reasons) {
+ return reasons.map(reason => reason === 'Mild, with no added chili heat' ? 'No added chili heat' : reason);
+}
 export const guestHeatOptions = [[0, 'No heat', 'No spice or noticeable heat'], [1, 'Medium', 'Some noticeable heat'], [2, 'Hot', 'Spicy is welcome']];
 export const guestAdventureQuestion = 'How adventurous should this pick be?';
 export const guestAdventureOptions = [['familiar', 'Classic crowd-pleaser', 'Broadly recognizable dishes'], ['adventurous', 'A little different', 'Explore cuisines and ingredients'], ['any', 'Surprise me', 'The widest variety within your choices']];

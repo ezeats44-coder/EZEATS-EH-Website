@@ -1,6 +1,6 @@
 import {hasUnsupportedAllergy} from './allergy-screening.js';
 import {renderGuestSliders, updateGuestSlider} from './guest-sliders.js';
-import {guestHeatOptions, guestAdventureQuestion, guestAdventureOptions, readGuestPicker, writeGuestPicker} from './guest-picker.js';
+import {guestHeatOptions, guestAdventureQuestion, guestAdventureOptions, readGuestPicker, writeGuestPicker, guestEmptyMessage, guestReasons} from './guest-picker.js';
 import { accountReady, profileRequest } from './account-client.js';
 import { mealDefaults } from './profile-schema.js';
 import { applyProfile } from './profile-matching.js';
@@ -87,17 +87,17 @@ function recommend() {
 }
 function currentResult() {
   const item = state.ranked[state.index];
-  return item ? { id: item.id, name: item.name, minutes: item.minutes, estimatedCostUSD: item.cost, ingredients: item.ingredients, reasons: reasonsFor(item, state.prefs), accepted: state.accepted } : { matched: false, message: 'No meals fit these limits. Adjust your preferences.' };
+  return item ? { id: item.id, name: item.name, minutes: item.minutes, estimatedCostUSD: item.cost, ingredients: item.ingredients, reasons: personalMode ? reasonsFor(item, state.prefs) : guestReasons(reasonsFor(item, state.prefs)), accepted: state.accepted } : { matched: false, message: 'No meals fit these limits. Adjust your preferences.' };
 }
 function showResult() {
   updateProgress(3);
   const item = state.ranked[state.index];
   if (!item) {
-    flow.innerHTML = `<div class="empty-state"><span aria-hidden="true">🥣</span><h2>No match this time.</h2><p>No meal in our list fits these choices and any saved ingredient exclusions. You can review your limits or your saved preferences in Settings. Additional allergy details pause suggestions because we cannot reliably screen them.</p><button class="primary" data-action="details">Adjust my choices <span aria-hidden="true">→</span></button></div>`;
+    flow.innerHTML = `<div class="empty-state"><span aria-hidden="true">🥣</span><h2>No match this time.</h2><p>${personalMode ? 'No meal in our list fits these choices and any saved ingredient exclusions. You can review your limits or your saved preferences in Settings. Additional allergy details pause suggestions because we cannot reliably screen them.' : guestEmptyMessage}</p><button class="primary" data-action="details">Adjust my choices <span aria-hidden="true">→</span></button></div>`;
     focusHeading();
     return;
   }
-  const reasons = reasonsFor(item, state.prefs).map(reason => !personalMode && reason === 'Mild, with no added chili heat' ? 'No added chili heat' : reason);
+  const reasons = personalMode ? reasonsFor(item, state.prefs) : guestReasons(reasonsFor(item, state.prefs));
   if(personalMode&&item.historyReason)reasons.push(item.historyReason);
   const left = state.ranked.length - state.index - 1;
   flow.innerHTML = `<div class="result-heading"><span class="result-label ${state.accepted ? 'accepted' : ''}">${state.accepted ? '✓ DECISION MADE' : '✳ YOUR NEXT BITE, SORTED'}</span><span class="result-emoji" aria-hidden="true">${item.emoji}</span><p class="cuisine">${item.cuisine}</p><h2>${item.name}</h2><p>${state.accepted ? 'Good choice. The deciding is done — time for the delicious part.' : item.description}</p></div>

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {guestHeatOptions, guestAdventureOptions, guestAdventureQuestion, readGuestPicker, writeGuestPicker} from '../dist/guest-picker.js';
+import {guestHeatOptions, guestAdventureOptions, guestAdventureQuestion, readGuestPicker, writeGuestPicker, guestEmptyMessage, guestReasons} from '../dist/guest-picker.js';
 import {defaults, rankMeals} from '../dist/meals.js';
 test('guest labels retain legacy values and describe recommendation styles',()=>{
  assert.deepEqual(guestHeatOptions.map(x=>x[0]),[0,1,2]);
@@ -24,4 +24,20 @@ test('all guest styles retain identical hard-filter eligibility, with distinct r
  const results=['familiar','adventurous','any'].map(adventure=>rankMeals({...p,adventure},()=>0));
  for(const rows of results){assert.ok(rows.length);assert.ok(rows.every(r=>r.heat===0&&r.diets.includes('vegan')&&r.minutes<=60&&r.cost<=20));assert.deepEqual(rows.map(r=>r.id).sort(),results[0].map(r=>r.id).sort());}
  assert.equal(results[0][0].adventure,0);assert.equal(results[1][0].adventure,1);assert.ok(results[2].every(r=>r.score===6));
+});
+
+test('guest empty and tool responses make no saved-profile or history assumptions',()=>{
+ assert.ok(!/saved|Settings|history|allergy details/i.test(guestEmptyMessage));
+ assert.match(guestEmptyMessage,/no restrictions have been changed/);
+ const original=['Mild, with no added chili heat','Ready in 10 minutes'];
+ assert.deepEqual(guestReasons(original),['No added chili heat','Ready in 10 minutes']);
+ assert.equal(original[0],'Mild, with no added chili heat');
+});
+test('guest scenario matrix never relaxes hard filters and every result has a catalog identity',()=>{
+ for(const time of [15,30,60])for(const budget of [5,10,20])for(const heat of [0,1,2])for(const adventure of ['familiar','adventurous','any'])for(const diets of [[],['vegan'],['vegan','gluten-free','dairy-free'],['pescatarian']]){
+  const prefs={...defaults,time,budget,heat,adventure,diets};
+  const rows=rankMeals(prefs,()=>0);
+  assert.equal(new Set(rows.map(r=>r.id)).size,rows.length);
+  for(const row of rows){assert.ok(row.id);assert.ok(row.minutes<=time);assert.ok(row.cost<=budget);assert.ok(row.heat<=heat);assert.ok(diets.every(diet=>row.diets.includes(diet)));}
+ }
 });
