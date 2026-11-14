@@ -1,6 +1,7 @@
 import './contributor-access.js';
 import {accountReady} from './account-client.js';
 const nav=document.querySelector('.site-nav');
+if(nav&&!nav.querySelector('a[href="/feedback/"]')){const feedback=document.createElement('a');feedback.href='/feedback/';feedback.className='text-button';feedback.textContent='Feedback';nav.append(feedback);}
 const tools=document.querySelector('#owner-tools');
 const status=document.querySelector('#owner-status');
 const retry=document.querySelector('#owner-retry');
