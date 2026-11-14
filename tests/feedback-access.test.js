@@ -21,8 +21,9 @@ test('Access discovery exposes only a boolean and cannot bypass Owner authorizat
  async function run(ownerOnly=false){let code,data;const res={setHeader(){},status(v){code=v;return this;},json(v){data=v;}};await createFeedbackHandler({owner:ownerOnly,auth:async()=>user,enabled:()=>true,access:()=>true})({method:'GET',url:'/api/feedback?access=1',headers:{}},res);return {code,data};}
  assert.deepEqual(await run(),{code:200,data:{available:true}});assert.equal((await run(true)).code,403);
 });
-test('Feedback draft is labeled and contains actual retention limits without automatic-erasure promises',async()=>{
+test('Approved Feedback policy is dated and contains actual retention limits without automatic-erasure promises',async()=>{
  const {readFile}=await import('node:fs/promises');const text=await readFile(new URL('../dist/feedback/privacy/index.html',import.meta.url),'utf8');
- for(const phrase of ['Draft for Owner review','90 days','30 days','12 months','not automatic deletion promises','does not automatically delete Feedback','Back to Feedback'])assert.ok(text.includes(phrase),phrase);
+ for(const phrase of ['Approved November 14, 2026.','90 days','30 days','12 months','not automatic deletion promises','does not automatically delete Feedback','Back to Feedback'])assert.ok(text.includes(phrase),phrase);
  assert.ok(!text.includes('<script'));
+ const published=await readFile(new URL('../dist/privacy/index.html',import.meta.url),'utf8');assert.ok(published.includes('id="private-feedback"'));assert.ok(published.includes('Updated November 14, 2026.'));assert.ok(published.includes('not automatic deletion promises'));
 });

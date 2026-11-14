@@ -19,3 +19,7 @@ Use separate development Clerk IDs for Preview and production Clerk IDs for Prod
 ## Policy publication gate
 
 Preview serves a clearly marked draft. After approval, incorporate the approved wording into /privacy/, update the policy date, and change Feedback links to the published section. Re-run tests and verify that final Preview candidate before Production. Approval of the engineering implementation does not silently approve a retention period or publish this draft.
+
+## Approval recorded — November 14, 2026
+
+The user approved the draft and proposed review deadlines in chat. The approved text is now incorporated into /privacy/#private-feedback on the final Preview candidate; this does not mean Production has been deployed. The same candidate must pass remaining restricted-account checks and Production recovery/migration preflight.
