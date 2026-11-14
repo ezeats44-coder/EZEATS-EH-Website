@@ -41,3 +41,7 @@ Refresh inbox checks for new messages; there is no polling/realtime transport or
 Local automated suite: 201 tests pass, including 10 feedback groups. Existing 100 recipes/100 static detail pages verified. Syntax, local links/assets and diff checks pass; production dependency audit reports no known vulnerabilities. Simulated local browser verified create, Owner unread/open/reply, user unread and closed read-only view, with 390×844 mobile reflow and keyboard Enter activation. Real Clerk Preview lifecycle is not yet complete.
 
 Feature worktree: codex/private-feedback-preview, isolated from b3123fa9600c1bfb1359cbc2bd54fa873b74158d. Preview release uses the existing codex/owner-recipe-preview Git branch, fast-forward only, to preserve its already-isolated branch-scoped database/Clerk configuration. Only FEEDBACK_ENABLED=true was added in Preview. No production environment variables changed.
+
+## Release-gate revision
+
+The master switch now defaults to test-only access. See docs/feedback-retention-runbook.md for FEEDBACK_ACCESS_MODE and FEEDBACK_TEST_USER_IDS, the manual retention process, and the explicit policy approval/publication gate. The Owner allowlist still independently authorizes Owner operations. The draft at /feedback/privacy/ must not be presented as an approved Production policy. No new schema migration is needed for these two release-gate changes.

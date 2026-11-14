@@ -9,7 +9,7 @@ import {WorkspaceError} from '../server/recipes/workspace/input.js';
 if(process.env.VERCEL||process.env.NODE_ENV==='production')throw Error('Local fixture only.');
 const db=new PGlite();await db.exec(await readFile(new URL('../server/feedback/schema.sql',import.meta.url),'utf8'));const store=createFeedbackStore(db);
 const auth=async req=>{const userId=req.headers.authorization?.slice(7);if(!['alice','bob','owner'].includes(userId))throw new WorkspaceError('Sign in to continue.',401);return {userId,owner:userId==='owner'};};
-const app=createPreviewServer({feedback:createFeedbackHandler({store,auth,enabled:()=>true}),'owner-feedback':createFeedbackHandler({store,auth,owner:true,enabled:()=>true})});
+const app=createPreviewServer({feedback:createFeedbackHandler({store,auth,access:()=>true,enabled:()=>true}),'owner-feedback':createFeedbackHandler({store,auth,owner:true,access:()=>true,enabled:()=>true})});
 const server=http.createServer((req,res)=>{
  if(!['localhost:4196','127.0.0.1:4196'].includes(req.headers.host)){res.writeHead(403);res.end();return;}
  const role=req.headers.cookie?.match(/fixture_feedback=(owner|alice|bob|guest)/)?.[1]||'alice';

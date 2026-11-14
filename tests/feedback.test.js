@@ -39,9 +39,9 @@ test('Bounded lists, message history and read watermark preserve later unread re
 });
 test('Shared rate limits reject request 61 and do not expose private data',async()=>{for(let i=0;i<60;i++)await store.limit({userId:'limited'});await assert.rejects(()=>store.limit({userId:'limited'}),e=>e.status===429);});
 test('API verifies owner, signed-out denial, methods, flags and safe database failures',async()=>{
- async function run(options,req={method:'GET',url:'/api/feedback',headers:{}}){let status,result;const res={setHeader(){},status(s){status=s;return this;},json(v){result=v;}};await createFeedbackHandler(options)(req,res);return {status,result};}
+ async function run(options,req={method:'GET',url:'/api/feedback',headers:{}}){let status,result;const res={setHeader(){},status(s){status=s;return this;},json(v){result=v;}};await createFeedbackHandler({access:()=>true,...options})(req,res);return {status,result};}
  assert.equal((await run({auth:async()=>a,owner:true,enabled:()=>true,store})).status,403);
- assert.equal((await run({auth:async()=>a,enabled:()=>false,store})).status,404);
+ assert.equal((await run({auth:async()=>a,enabled:()=>false,store})).status,403);
  assert.equal((await run({auth:async()=>a,enabled:()=>true,store:{limit(){throw Error('PRIVATE');}}})).status,503);
  const result=await run({auth:async()=>a,enabled:()=>true,store},{method:'DELETE',url:'/',headers:{}});assert.equal(result.status,405);
  const own=await run({auth:async()=>({...a,owner:true}),enabled:()=>true,store});assert.ok(own.result.items.every(x=>!('account_id' in x)));
