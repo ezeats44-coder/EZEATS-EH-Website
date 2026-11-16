@@ -1,1 +1,2 @@
-export function reviewOrigins(){return ['https://www.ezeats-eh.com','https://ezeats-eh.com','https://ezeats.vercel.app',...(process.env.VERCEL_URL?[`https://${process.env.VERCEL_URL}`]:[])];}
+import {PRODUCTION_ORIGINS} from '../dist/site-config.js';
+export function reviewOrigins(){return [...PRODUCTION_ORIGINS,...(process.env.VERCEL_URL?[`https://${process.env.VERCEL_URL}`]:[])];}

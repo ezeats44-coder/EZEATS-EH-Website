@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {PRODUCTION_HOSTS} from '../dist/site-config.js';
 import {publicAnalyticsUrl,publicPageEvent} from '../dist/web-analytics.js';
 test('analytics sends only public production page views without query strings or fragments',()=>{
  for(const path of ['/','/about/','/reviews/','/privacy/','/recipe/','/recipes/chickpea-bowl/']){
@@ -18,7 +19,7 @@ test('private pages do not include analytics script',async()=>{
 });
 test('analytics loads once on public production pages and respects privacy signals',async()=>{
  const {runInNewContext}=await import('node:vm');
- const code=(await readFile('dist/web-analytics.js','utf8')).replaceAll('export function','function');
+ const code=(await readFile('dist/web-analytics.js','utf8')).replace(/^import .*;\n/,'').replaceAll('export function','function');
  for(const [href,privacy,expected] of [
   ['https://www.ezeats-eh.com/',{},1],
   ['https://www.ezeats-eh.com/about',{},1],
@@ -28,7 +29,7 @@ test('analytics loads once on public production pages and respects privacy signa
   ['https://www.ezeats-eh.com/',{globalPrivacyControl:true},0]
  ]){
   const scripts=[];const window={location:{href}};
-  runInNewContext(code,{URL,window,navigator:privacy,document:{createElement:()=>({}),head:{append:s=>scripts.push(s)}}});
+  runInNewContext(code,{PRODUCTION_HOSTS,URL,window,navigator:privacy,document:{createElement:()=>({}),head:{append:s=>scripts.push(s)}}});
   assert.equal(scripts.length,expected);
   if(expected){assert.equal(scripts[0].src,'/_vercel/insights/script.js');assert.equal(window.vaq[0][0],'beforeSend');}
  }

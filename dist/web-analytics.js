@@ -1,8 +1,9 @@
+import {PRODUCTION_HOSTS} from './site-config.js';
 // Basic public-page statistics only. Never load on previews or private tools.
 export function publicAnalyticsUrl(value) {
  try {
   const url=new URL(value);
-  if(!['www.ezeats-eh.com','ezeats-eh.com','ezeats.vercel.app'].includes(url.hostname)||url.protocol!=='https:')return null;
+  if(!PRODUCTION_HOSTS.includes(url.hostname)||url.protocol!=='https:')return null;
   if(/^\/recipes\/contribute(?:\/|$)/.test(url.pathname))return null;
   if(!/^\/(?:index\.html)?$|^\/(?:about|reviews|privacy|recipe)(?:\/(?:index\.html)?)?$|^\/recipes\/[a-z0-9-]+(?:\/(?:index\.html)?)?$/.test(url.pathname))return null;
   url.search='';url.hash='';return url.toString();

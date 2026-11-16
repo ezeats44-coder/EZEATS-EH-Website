@@ -12,3 +12,6 @@ AGENTS.md
 
 .local-data/
 .vercel
+
+# Safe configuration example is intentionally tracked.
+!.env.example

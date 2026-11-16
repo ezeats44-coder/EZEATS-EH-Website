@@ -38,7 +38,7 @@ Tests cover all 100 records, legacy IDs, one-to-one mapping, ingredient referenc
 
 The next owner-only recipe workspace is implemented locally under `/owner/recipes/` and gated off in hosted environments by default. See [owner workspace, migration and preview approval steps](docs/owner-recipe-workspace.md). `pnpm dev:recipes` uses a local PostgreSQL database and development Clerk authentication; `pnpm verify:recipes:browser` runs a disposable simulated-owner fixture. No recipe database migration or deployment has been performed for that work, and the public picker still uses only the 100 file recipes.
 
-The existing `vercel.json` installs with the frozen lockfile, serves `dist`, and deploys Node API functions. Existing production configuration uses Clerk keys, `DATABASE_URL` for customer reviews, and `REVIEW_ADMIN_USER_IDS` for server-side owner authorization. Recipe data adds no external service. Production lives at https://www.ezeats-eh.com/; a push can trigger deployment, so do not push this catalog branch before review.
+The existing `vercel.json` installs with the frozen lockfile, serves `dist`, and deploys Node API functions. Existing production configuration uses Clerk keys, `DATABASE_URL` for customer reviews, and `REVIEW_ADMIN_USER_IDS` for server-side owner authorization. Recipe data adds no external service. This branch prepares https://www.ezeatseh.com/ as the primary URL; the existing production domain remains supported. A push can trigger deployment, so do not push this catalog branch before review.
 
 TheMealDB stays opt-in localhost development only. Public recipe submissions, image uploads and hosted recipe providers remain disabled. The new owner recipe API is separately feature-gated and uses a dedicated recipe connection, never the review database by fallback. The historical proposed moderation SQL remains unapplied and is superseded by the locally tested workspace migration. No new tracking or nearby-food MVP is included.
 
@@ -50,6 +50,6 @@ See [implementation and release gates](docs/contributor-beta.md), [unpublished p
 
 ## Release validation and operations
 
-Vercel builds run `pnpm test && pnpm check`. The same checks run in GitHub Actions with pinned pnpm 11.19.0 / Node 24. `pnpm metadata:generate` updates static recipe detail pages and the sitemap from the unchanged first-party catalog. Public source URLs are https://www.ezeats-eh.com/.
+Vercel builds run `pnpm test && pnpm check`. The same checks run in GitHub Actions with pinned pnpm 11.19.0 / Node 24. `pnpm metadata:generate` updates static recipe detail pages and the sitemap from the unchanged first-party catalog. Public URLs are generated from `dist/site-config.js`. See `docs/domain-migration.md` before deploying the domain transition.
 
 Profile requests now require the existing `RECIPE_DATABASE_URL` connection and contributor migration, including SELECT/INSERT/UPDATE privileges on `recipe_contributor_limits`. This provides shared rate limits and transaction-scoped locks for Clerk metadata writes; no profile answers are copied into Neon. Authenticated local testing must use an isolated database; never use production credentials.

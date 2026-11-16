@@ -1,3 +1,4 @@
+import {SITE_URL} from '../../../dist/site-config.js';
 import {drafts} from './recipes.js';
 import {ingredients,dietTags} from './ingredients.js';
 import {validateRecipe} from '../model.js';
@@ -34,7 +35,7 @@ export function compileRecipe(d){
   instructions:steps,cuisine:d.cuisine,mealTypes:d.mealTypes,difficulty:d.prep+d.cook>=40?'moderate':'easy',
   dietTags:dietTags(keys),knownAllergens:[...new Set(keys.flatMap(k=>ingredients[k].allergens))].sort(),
   estimatedCost:{amount:d.cost,currency:'USD',basis:'per-serving',estimated:true},imageUrl:null,
-  source:{provider:'EZEATS',originalUrl:`https://www.ezeats-eh.com/recipe/?id=ezeats:${d.id}`,attribution:'Original EZEATS recipe text, authored for EZEATS EH LLC.',licensingStatus:'First-party EZEATS content; no external reuse license granted.',verifiedAt:null,ownership:'first-party'},
+  source:{provider:'EZEATS',originalUrl:`${SITE_URL}/recipe/?id=ezeats:${d.id}`,attribution:'Original EZEATS recipe text, authored for EZEATS EH LLC.',licensingStatus:'First-party EZEATS content; no external reuse license granted.',verifiedAt:null,ownership:'first-party'},
   suitability:{status:'unverified',ingredientsComplete:true,allergensComplete:true,dietEvidence:true,notes:'Ingredient-list screening only, for the exact products specified. Brands, substitutions and cross-contact can change suitability. Editorial review is not kitchen testing or a medical or allergy-safety guarantee.'},
   editorial:{status:'editorially-reviewed-draft',reviewedAt:reviewDate,reviewer:'AI-assisted editorial review',ownerReviewRequired:true,kitchenTested:false,notes:'Checked for ingredient coverage, recipe structure and consistency against the cited temperature guidance. Owner review and kitchen testing are still required.'},
   safety:{handling,sources:safetySources,checkedAt:reviewDate},

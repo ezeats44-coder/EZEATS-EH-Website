@@ -1,6 +1,7 @@
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {ownedRecipes} from '../server/recipes/owned/catalog.js';
-const check=process.argv.includes('--check'),base='https://www.ezeats-eh.com';
+import {SITE_URL} from '../dist/site-config.js';
+const check=process.argv.includes('--check'),base=SITE_URL;
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function output(path,text){if(check){if(await readFile(path,'utf8')!==text)throw Error(`Generated metadata is stale: ${path}`);}else{await mkdir(path.slice(0,path.lastIndexOf('/')),{recursive:true});await writeFile(path,text);}}
 const pages=[['/','EZEATS — Find your next bite',"Find a meal for your mood, dietary preferences, time and budget."],['/about/','About EZEATS','Learn about EZEATS and its founder.'],['/reviews/','EZEATS community reviews','Read approved feedback about EZEATS.'],['/privacy/','EZEATS Privacy Policy','How EZEATS handles account, preference and contributor information.']];

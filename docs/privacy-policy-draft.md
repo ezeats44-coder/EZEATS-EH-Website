@@ -2,7 +2,7 @@
 
 **Effective September 15, 2026.**
 
-EZEATS EH is operated by EZ-EATS EH LLC. This policy explains how we handle information when you use our food recommendation website at ezeats-eh.com. Contact us with privacy questions at ezeats44@gmail.com.
+EZEATS EH is operated by EZ-EATS EH LLC. This policy explains how we handle information when you use our food recommendation website at www.ezeatseh.com (formerly ezeats-eh.com). Contact us with privacy questions at ezeats44@gmail.com.
 
 ## Information you provide
 
